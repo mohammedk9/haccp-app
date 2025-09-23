@@ -1,0 +1,214 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  OPERATOR
+  QUALITY_MANAGER
+   AUDITOR
+  NUTRITION_SPECIALIST
+  GENERAL_SUPERVISOR
+  QUALITY_INSPECTOR
+  FOOD_INSPECTOR
+  FOOD_TECHNICIAN
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(OPERATOR)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // العلاقات العكسية
+  facilities   Facility[]
+  hazards      Hazard[]
+  ccps         CCP[]
+  records      Record[]
+  auditLogs    AuditLog[]
+  haccpPlans   HaccpPlan[]
+  haccpSteps   HaccpStep[]
+  haccpRecords HaccpRecord[]
+  products     Product[]
+}
+
+model Facility {
+  id          String   @id @default(cuid())
+  name        String
+  location    String?
+  type        String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String
+
+  // العلاقات
+  hazards    Hazard[]
+  ccps       CCP[]
+  records    Record[]
+  haccpPlans HaccpPlan[]
+  user       User        @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+}
+
+model Hazard {
+  id          String   @id @default(cuid())
+  name        String
+  type        String
+  description String?
+  severity    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  facilityId  String
+  createdBy   String
+
+  // العلاقات
+  ccps     CCP[]
+  facility Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+}
+
+model CCP {
+  id                  String   @id @default(cuid())
+  name                String
+  description         String?
+  criticalLimit       String?
+  monitoringProcedure String?
+  correctiveActions   String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  facilityId          String
+  hazardId            String
+  createdBy           String
+
+  // العلاقات
+  records  Record[]
+  facility Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  hazard   Hazard   @relation(fields: [hazardId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+}
+
+model Record {
+  id         String   @id @default(cuid())
+  value      String
+  status     String?
+  notes      String?
+  measuredAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  facilityId String
+  ccpId      String
+  createdBy  String
+
+  // العلاقات
+  facility Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  ccp      CCP      @relation(fields: [ccpId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+}
+
+model HaccpPlan {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  facilityId  String?
+  userId      String
+
+  // العلاقات
+  steps    HaccpStep[]
+  facility Facility?   @relation(fields: [facilityId], references: [id])
+  user     User        @relation(fields: [userId], references: [id])
+}
+
+model HaccpStep {
+  id          String   @id @default(cuid())
+  stepNumber  Int?
+  title       String
+  description String?
+  type        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  planId      String
+  userId      String
+
+  // العلاقات
+  plan    HaccpPlan     @relation(fields: [planId], references: [id])
+  records HaccpRecord[]
+  user    User          @relation(fields: [userId], references: [id])
+}
+
+model HaccpRecord {
+  id         String   @id @default(cuid())
+  value      String
+  note       String?
+  measuredAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  stepId     String
+  userId     String
+
+  // العلاقات
+  step HaccpStep @relation(fields: [stepId], references: [id])
+  user User      @relation(fields: [userId], references: [id])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String
+  targetId   String?
+  targetType String?
+  details    String?
+  createdAt  DateTime @default(now())
+  userId     String
+
+  // العلاقات
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  category    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String
+
+  // العلاقة مع المستخدم
+  user User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+}
+
+model Storage {
+  id        String   @id @default(cuid())
+  name      String
+  type      String // "fridge" | "dry"
+  location  String? // اختياري: موقع/وصف
+  capacity  String? // اختياري: سعة (مثلاً "100kg")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  logs StorageLog[]
+  // إن أردت: صاحب / createdBy relation تستطيع إضافتها لاحقًا
+}
+
+model StorageLog {
+  id        String  @id @default(cuid())
+  storageId String
+  storage   Storage @relation(fields: [storageId], references: [id], onDelete: Cascade)
+
+  temperature Float? // درجة الحرارة (مثال: 4.5)
+  humidity    Float? // الرطوبة (مثال: 60.2) — للتخزين الجاف قد تكون null
+  cleanliness String? // وصف حالة النظافة: "clean", "needs cleaning", ملاحظة، إلخ
+
+  measuredAt DateTime @default(now()) // وقت القياس (يمكن تمرير تاريخ مخصص عند الإنشاء)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}

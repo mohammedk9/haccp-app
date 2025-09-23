@@ -1,0 +1,84 @@
+.add-storage-container {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 20px;
+  border-radius: 12px;
+  background-color: #f8f9fa;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  font-family: Arial, sans-serif;
+}
+
+.add-storage-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.add-storage-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.add-storage-form label {
+  display: flex;
+  flex-direction: column;
+  font-weight: bold;
+  color: #555;
+}
+
+.add-storage-form input,
+.add-storage-form select {
+  padding: 8px 10px;
+  margin-top: 5px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.add-storage-form input:focus,
+.add-storage-form select:focus {
+  outline: none;
+  border-color: #0070f3;
+}
+
+.add-storage-form button {
+  padding: 10px;
+  background-color: #0070f3;
+  color: #fff;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.add-storage-form button:hover {
+  background-color: #005bb5;
+}
+
+.add-storage-form button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+.error-message {
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #ffe0e0;
+  color: #d8000c;
+  border-radius: 6px;
+}
+
+.success-message {
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #e0ffe0;
+  color: #006400;
+  border-radius: 6px;
+}
+
+.required {
+  color: red;
+  margin-left: 2px;
+}

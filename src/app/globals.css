@@ -1,26 +1,136 @@
-@import "tailwindcss";
+/* src/app/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: Arial, Helvetica, sans-serif;
+  
+  /* إضافة متغيرات جديدة */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --text-primary: #2d3748;
+  --text-secondary: #718096;
+  --border-color: #e2e8f0;
+  --accent-color: #667eea;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    
+    /* متغيرات Dark Mode */
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --border-color: #334155;
+    --accent-color: #818cf8;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Dark Mode Toggle Button */
+.theme-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1);
+}
+
+/* تطبيق Dark Mode على جميع الصفحات تلقائياً */
+[data-theme="dark"] {
+  --background: #0f172a;
+  --foreground: #f1f5f9;
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --border-color: #334155;
+  --accent-color: #818cf8;
+}
+
+/* تأكد من أن جميع العناصر تستخدم المتغيرات */
+[data-theme="dark"] body {
+  background: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+/* تطبيق تلقائي على الفئات الشائعة في تطبيقك */
+[data-theme="dark"] .users-container,
+[data-theme="dark"] .dashboard-container,
+[data-theme="dark"] .storages-container,
+[data-theme="dark"] .reports-container,
+[data-theme="dark"] .records-container,
+[data-theme="dark"] .products-container,
+[data-theme="dark"] .hazards-container,
+[data-theme="dark"] .haccp-plans-container,
+[data-theme="dark"] .facilities-container,
+[data-theme="dark"] .ccps-container,
+[data-theme="dark"] .profile-container {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .users-table-container,
+[data-theme="dark"] .dashboard-header,
+[data-theme="dark"] .users-tools,
+[data-theme="dark"] .user-form,
+[data-theme="dark"] .recent-items-card,
+[data-theme="dark"] .quick-nav {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .users-table th {
+  background: var(--bg-primary) !important;
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .users-table td {
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] input::placeholder {
+  color: var(--text-secondary) !important;
 }
