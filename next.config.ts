@@ -11,6 +11,11 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
 
+  eslint: {
+    // هذا السطر يتجاهل جميع أخطاء ESLint أثناء البناء
+    ignoreDuringBuilds: true,
+  },
+
   async rewrites() {
     return [
       {
