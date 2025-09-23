@@ -1,13 +1,16 @@
 // src/app/api/users/[id]/route.ts
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth'; // ✅ استخدم الاستيراد باسم مُسمّى
-import { prisma } from '@/lib/prisma'; // تأكد أن prisma تم تصديره من lib/prisma.ts
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 import type { NextRequest } from 'next/server';
 import bcrypt from 'bcryptjs';
 
-
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+// GET: جلب بيانات مستخدم
+export async function GET(
+  request: NextRequest,
+  context: { params: { id: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -16,7 +19,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: params.id },
+      where: { id: context.params.id },
       select: {
         id: true,
         name: true,
@@ -39,7 +42,11 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+// PUT: تعديل بيانات مستخدم
+export async function PUT(
+  request: NextRequest,
+  context: { params: { id: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -52,17 +59,17 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     }
 
     const body = await request.json();
- const { name, email, role, isActive, password } = body;
+    const { name, email, role, isActive, password } = body;
 
-let updateData: any = { name, email, role, isActive };
+    let updateData: any = { name, email, role, isActive };
 
-if (password && password.length >= 6) {
-  updateData.password = await bcrypt.hash(password, 12);
-}
+    if (password && password.length >= 6) {
+      updateData.password = await bcrypt.hash(password, 12);
+    }
 
-const user = await prisma.user.update({
-  where: { id: params.id },
-  data: updateData,
+    const user = await prisma.user.update({
+      where: { id: context.params.id },
+      data: updateData,
       select: {
         id: true,
         name: true,
@@ -81,7 +88,11 @@ const user = await prisma.user.update({
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+// DELETE: حذف مستخدم
+export async function DELETE(
+  request: NextRequest,
+  context: { params: { id: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -93,7 +104,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ error: 'ليس لديك صلاحية' }, { status: 403 });
     }
 
-    await prisma.user.delete({ where: { id: params.id } });
+    await prisma.user.delete({ where: { id: context.params.id } });
 
     return NextResponse.json({ message: 'تم حذف المستخدم' });
   } catch (error) {

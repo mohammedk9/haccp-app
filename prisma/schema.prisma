@@ -11,7 +11,7 @@ enum Role {
   ADMIN
   OPERATOR
   QUALITY_MANAGER
-   AUDITOR
+  AUDITOR
   NUTRITION_SPECIALIST
   GENERAL_SUPERVISOR
   QUALITY_INSPECTOR
@@ -108,7 +108,6 @@ model Record {
   ccpId      String
   createdBy  String
 
-  // العلاقات
   facility Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
   ccp      CCP      @relation(fields: [ccpId], references: [id], onDelete: Cascade)
   user     User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
@@ -189,14 +188,13 @@ model Product {
 model Storage {
   id        String   @id @default(cuid())
   name      String
-  type      String // "fridge" | "dry"
-  location  String? // اختياري: موقع/وصف
-  capacity  String? // اختياري: سعة (مثلاً "100kg")
+  type      String
+  location  String?
+  capacity  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   logs StorageLog[]
-  // إن أردت: صاحب / createdBy relation تستطيع إضافتها لاحقًا
 }
 
 model StorageLog {
@@ -204,11 +202,11 @@ model StorageLog {
   storageId String
   storage   Storage @relation(fields: [storageId], references: [id], onDelete: Cascade)
 
-  temperature Float? // درجة الحرارة (مثال: 4.5)
-  humidity    Float? // الرطوبة (مثال: 60.2) — للتخزين الجاف قد تكون null
-  cleanliness String? // وصف حالة النظافة: "clean", "needs cleaning", ملاحظة، إلخ
+  temperature Float?
+  humidity    Float?
+  cleanliness String?
 
-  measuredAt DateTime @default(now()) // وقت القياس (يمكن تمرير تاريخ مخصص عند الإنشاء)
+  measuredAt DateTime @default(now())
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
