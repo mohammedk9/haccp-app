@@ -20,9 +20,10 @@ export default function AdminSection({ userStats, alerts }: AdminSectionProps) {
           <h3>توزيع المستخدمين</h3>
           <div className="role-distribution">
             {Object.entries(userStats.byRole || {}).map(([role, count]) => {
-              const percentage = userStats.total > 0 
-                ? (Number(count) / userStats.total) * 100 
-                : 0;
+  const numericCount = Number(count); 
+  const percentage = userStats.total > 0 
+    ? (numericCount / userStats.total) * 100 
+    : 0;
               
               return (
                 <div key={role} className="role-item">
@@ -38,7 +39,7 @@ export default function AdminSection({ userStats, alerts }: AdminSectionProps) {
                     ></div>
                   </div>
                   <span className="role-count">
-                    {count} ({percentage.toFixed(1)}%)
+                    {numericCount} ({percentage.toFixed(1)}%)
                   </span>
                 </div>
               );

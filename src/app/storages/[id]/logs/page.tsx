@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import './storageLogs.css';
+import '../logs/storageLogs.css';
 
 interface StorageLog {
   id: string;
