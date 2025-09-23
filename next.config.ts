@@ -2,32 +2,43 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  // تجاهل حزم خارجية أثناء البناء
   serverExternalPackages: ['@prisma/client', 'bcryptjs'],
 
-  images: {
-    domains: ['localhost'],
-  },
-
-  compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
-  },
-
-  // تجاهل ESLint أثناء البناء
+  // تجاهل تحذيرات ESLint أثناء البناء
   eslint: {
     ignoreDuringBuilds: true,
   },
 
-  // تجاهل أخطاء TypeScript أثناء البناء
+  // تجاهل تحذيرات TypeScript أثناء البناء
   typescript: {
     ignoreBuildErrors: true,
   },
 
-  // إعادة كتابة الروابط حسب الحاجة
+  // إعدادات الصور
+  images: {
+    domains: ['localhost'],
+  },
+
+  // إزالة console.logs فقط في الإنتاج
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+
+  // إعادة كتابة الروابط إذا أحببت
   async rewrites() {
     return [
       {
-        source: '/auth/signin',
-        destination: '/auth-pages/signin',
+        source: '/auth/signin',          // الرابط الذي يصل له المستخدم
+        destination: '/auth-pages/signin', // الصفحة الفعلية في المشروع
+      },
+      {
+        source: '/auth/forgot-password',
+        destination: '/auth-pages/forgot-password',
+      },
+      {
+        source: '/auth/reset-password',
+        destination: '/auth-pages/reset-password',
       },
     ];
   },
