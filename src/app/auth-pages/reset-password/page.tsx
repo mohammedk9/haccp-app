@@ -1,4 +1,5 @@
 // src/app/auth-pages/reset-password/page.tsx
+export const dynamic = "force-dynamic";
 'use client';
 
 import { useState, useEffect } from 'react';
