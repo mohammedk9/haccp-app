@@ -8,7 +8,7 @@
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started هذا لكي تبدأ التطبيق بشكل محلي عبر جهازك البرنامج مفتوح المصر وتستطيع تطويره 
+## Getting Started هذا لكي تبدأ التطبيق بشكل محلي عبر جهازك البرنامج مفتوح المصدر وتستطيع تطويره 
 
 First, run the development server:
 
