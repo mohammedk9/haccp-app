@@ -1,9 +1,11 @@
+// C:\Users\pc\haccp-app\src\app\auth-pages\reset-password\ResetPasswordForm.tsx
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import './reset-password.css';
+import './reset-password.css'; // يجب أن يتم استيراد ملف CSS في ملف الصفحة الرئيسية أو ملف Layout
 
 export default function ResetPasswordForm() {
   const [password, setPassword] = useState('');
@@ -14,14 +16,14 @@ export default function ResetPasswordForm() {
   const [token, setToken] = useState('');
 
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const searchParams = useSearchParams(); // ✅ الآن هذا آمن لأنه ضمن 'use client' و <Suspense>
 
   useEffect(() => {
     const tokenFromUrl = searchParams.get('token');
     if (tokenFromUrl) {
       setToken(tokenFromUrl);
     } else {
-      setError('رابط إعادة التعيين غير صحيح');
+      setError('رابط إعادة التعيين غير صحيح أو مفقود. يرجى طلب رابط جديد.');
     }
   }, [searchParams]);
 
@@ -31,61 +33,64 @@ export default function ResetPasswordForm() {
     setError('');
     setMessage('');
 
-    if (!password || !confirmPassword) {
-      setError('كلمة المرور وتأكيدها مطلوبان');
-      setIsLoading(false);
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('كلمة المرور يجب أن تكون على الأقل 6 أحرف');
-      setIsLoading(false);
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError('كلمة المرور غير متطابقة');
-      setIsLoading(false);
-      return;
-    }
-
     if (!token) {
-      setError('رابط إعادة التعيين غير صحيح');
+        setError('رابط إعادة التعيين غير صحيح');
+        setIsLoading(false);
+        return;
+    }
+    
+    // ... (بقية شروط التحقق من كلمة المرور)
+    if (!password || !confirmPassword || password.length < 6 || password !== confirmPassword) {
+      setError('كلمة المرور غير صالحة أو غير متطابقة.');
       setIsLoading(false);
       return;
     }
+
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      setMessage('تم إعادة تعيين كلمة المرور بنجاح');
-      
-      setTimeout(() => {
-        router.push('/auth-pages/signin');
-      }, 2000);
-      
-    } catch (error) {
-      setError('حدث خطأ أثناء إعادة تعيين كلمة المرور. يرجى المحاولة مرة أخرى.');
+        const res = await fetch('/api/auth/reset-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password, token }),
+        });
+
+        const data = await res.json();
+        
+        if (!res.ok) {
+            throw new Error(data.message || 'فشلت عملية إعادة التعيين');
+        }
+
+        setMessage('تم تغيير كلمة المرور بنجاح! سيتم إعادة التوجيه.');
+        
+        setTimeout(() => {
+            router.push('/auth-pages/signin');
+        }, 3000);
+        
+    } catch (err: any) {
+        setError(err.message || 'حدث خطأ أثناء الاتصال بالخادم.');
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
   };
 
+  // ... (بقية كود العرض (Return JSX) للمكون ResetPasswordForm)
+
   if (error && !token) {
-    return (
-      <div className="reset-password-container">
-        <div className="reset-password-card">
-          <div className="error-state">
-            <div className="error-icon">❌</div>
-            <h2>رابط غير صحيح</h2>
-            <p>{error}</p>
-            <Link href="/auth-pages/forgot-password" className="link-button">
-              طلب رابط جديد
-            </Link>
+    // ... (كود عرض حالة الخطأ، كما كان لديك)
+     return (
+        <div className="reset-password-container">
+          <div className="reset-password-card">
+            <div className="error-state">
+              <div className="error-icon">❌</div>
+              <h2>رابط غير صحيح</h2>
+              <p>{error}</p>
+              <Link href="/auth-pages/forgot-password" className="link-button">
+                طلب رابط جديد
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
-    );
+      );
   }
 
   return (
