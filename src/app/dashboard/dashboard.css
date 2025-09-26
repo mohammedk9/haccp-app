@@ -282,6 +282,37 @@
   transform: translateY(0);
 }
 
+/* زر تسجيل الخروج */
+.logout-btn {
+  padding: 12px 18px; /* حجم مناسب */
+  background: var(--error-color); /* استخدام لون الخطأ لجذب الانتباه */
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px; /* مسافة بين الأيقونة والنص */
+  box-shadow: var(--shadow-sm);
+}
+
+.logout-btn:hover {
+  background: #dc2626; /* لون أغمق عند المرور */
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.logout-btn:active {
+  transform: translateY(0);
+}
+
+.logout-btn i {
+  font-size: 16px;
+}
+
 /* نظام التنبيهات */
 .alert-system {
   margin-bottom: 24px;

@@ -10,6 +10,7 @@ interface DashboardHeaderProps {
   isDarkMode: boolean;
   onToggleDarkMode: () => void;
   onRefresh: () => void;
+   onLogout: () => void;
 }
 
 export default function DashboardHeader({
@@ -17,7 +18,8 @@ export default function DashboardHeader({
   onSearch,
   isDarkMode,
   onToggleDarkMode,
-  onRefresh
+  onRefresh,
+  onLogout
 }: DashboardHeaderProps) {
   const { data: session } = useSession();
   const router = useRouter();
@@ -71,6 +73,14 @@ export default function DashboardHeader({
             title="تحديث البيانات"
           >
             <i className="bi bi-arrow-clockwise"></i>
+          </button>
+          <button 
+            onClick={onLogout}
+            className="logout-btn" // يمكنك تعديل تصميم هذا الزر في ملف CSS
+            aria-label="تسجيل الخروج"
+            title="تسجيل الخروج"
+          >
+            <i className="bi bi-box-arrow-right"></i> تسجيل الخروج
           </button>
         </div>
       </div>

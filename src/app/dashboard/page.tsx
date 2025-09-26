@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import StatCard from '@/components/dashboard/StatCard';
 import QuickNav from '@/components/dashboard/QuickNav';
@@ -97,6 +97,12 @@ export default function Dashboard() {
     fetchAlerts();
   }, [fetchDashboardData, fetchAlerts]);
 
+  const handleLogout = async () => {
+        // يتم استدعاء signOut() ثم يتم توجيه المستخدم تلقائيًا لصفحة تسجيل الدخول
+        await signOut({ callbackUrl: '/auth-pages/signin' }); 
+    };
+
+
   if (status === 'loading' || isLoading) {
     return (
       <div className="dashboard-container">
@@ -128,6 +134,7 @@ export default function Dashboard() {
         isDarkMode={isDarkMode}
         onToggleDarkMode={toggleDarkMode}
         onRefresh={handleRefresh}
+        onLogout={handleLogout}
       />
 
       <AlertSystem 
