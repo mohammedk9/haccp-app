@@ -1,23 +1,27 @@
-// next.config.ts
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  // 1. الخصائص القديمة التي تم إزالتها (eslint)
+  // 2. تم تحديث إعدادات الصور
+
   // تجاهل حزم خارجية أثناء البناء
   serverExternalPackages: ['@prisma/client', 'bcryptjs'],
-
-  // تجاهل تحذيرات ESLint أثناء البناء
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
 
   // تجاهل تحذيرات TypeScript أثناء البناء
   typescript: {
     ignoreBuildErrors: true,
   },
 
-  // إعدادات الصور
+  // إعدادات الصور (تم استبدال domains بـ remotePatterns)
   images: {
-    domains: ['localhost'],
+    remotePatterns: [
+      {
+        protocol: 'http', // يمكن أن يكون http أو https
+        hostname: 'localhost',
+        port: '', // اتركها فارغة إذا لم يكن هناك منفذ محدد (مثل http://localhost)
+        pathname: '**', // السماح بأي مسار بعد localhost
+      },
+    ],
   },
 
   // إزالة console.logs فقط في الإنتاج
@@ -25,12 +29,12 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
 
-  // إعادة كتابة الروابط إذا أحببت
+  // إعادة كتابة الروابط (لا يوجد تغيير هنا)
   async rewrites() {
     return [
       {
-        source: '/auth/signin',          // الرابط الذي يصل له المستخدم
-        destination: '/auth-pages/signin', // الصفحة الفعلية في المشروع
+        source: '/auth/signin',
+        destination: '/auth-pages/signin',
       },
       {
         source: '/auth/forgot-password',
