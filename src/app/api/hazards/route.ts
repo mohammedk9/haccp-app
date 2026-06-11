@@ -1,49 +1,49 @@
-// src/app/api/hazards/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { PublicUser } from "@/types/user";
+import { getUserFacilityIds } from "@/lib/permissions";
 
-// GET جميع المخاطر
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
+    if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
-    if (!session) {
-      return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
+    const facilityIds = await getUserFacilityIds(session.user.id, session.user.role);
+    if (facilityIds !== null && facilityIds.length === 0) {
+      return NextResponse.json({ hazards: [], pagination: { page: 1, limit: 10, total: 0, pages: 0 } });
     }
 
     const { searchParams } = new URL(req.url);
-    const facilityId = searchParams.get("facilityId");
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
-
+    const reqFacilityId = searchParams.get("facilityId");
     const skip = (page - 1) * limit;
 
-    const where = facilityId ? { facilityId } : {};
+    const where: any = {};
+    if (facilityIds !== null) {
+      where.facilityId = reqFacilityId && facilityIds.includes(reqFacilityId) ? reqFacilityId : { in: facilityIds };
+    } else if (reqFacilityId) {
+      where.facilityId = reqFacilityId;
+    }
 
-    const hazards = await prisma.hazard.findMany({
-      where,
-      skip,
-      take: limit,
-      orderBy: { createdAt: "desc" },
-      include: {
-        facility: { select: { name: true } },
-        user: { select: { id: true, name: true, email: true, role: true } },
-      },
-    });
-
-    const total = await prisma.hazard.count({ where });
+    const [hazards, total] = await Promise.all([
+      prisma.hazard.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: "desc" },
+        include: {
+          facility: { select: { name: true } },
+          user: { select: { id: true, name: true, email: true, role: true } },
+        },
+      }),
+      prisma.hazard.count({ where }),
+    ]);
 
     return NextResponse.json({
       hazards,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit),
-      },
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) },
     });
   } catch (error) {
     console.error("Hazards GET Error:", error);
@@ -51,27 +51,20 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST إنشاء خطر جديد
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
-    }
-
-    if (!["ADMIN", "QUALITY_MANAGER"].includes(session.user.role)) {
-      return NextResponse.json({ error: "ليس لديك صلاحية" }, { status: 403 });
-    }
+    if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
     const body = await req.json();
     const { name, type, description, severity, facilityId } = body;
-
     if (!name || !type || !facilityId) {
-      return NextResponse.json(
-        { error: "الاسم والنوع والمنشأة مطلوبة" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "الاسم والنوع والمنشأة مطلوبة" }, { status: 400 });
+    }
+
+    const facilityIds = await getUserFacilityIds(session.user.id, session.user.role);
+    if (facilityIds !== null && !facilityIds.includes(facilityId)) {
+      return NextResponse.json({ error: "منشأة غير مصرح بها" }, { status: 403 });
     }
 
     const hazard = await prisma.hazard.create({

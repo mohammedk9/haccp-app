@@ -1,13 +1,12 @@
-// src/app/api/alerts/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { getUserFacilityIds } from '@/lib/permissions';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
     }
@@ -16,62 +15,47 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(alerts);
   } catch (error) {
     console.error('Error in alerts API:', error);
-    return NextResponse.json(
-      { error: 'حدث خطأ في الخادم' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'حدث خطأ في الخادم' }, { status: 500 });
   }
 }
 
 export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
     }
 
     const { alertId } = await request.json();
-    
     await prisma.auditLog.create({
       data: {
         action: 'ALERT_VIEWED',
         targetId: alertId,
         targetType: 'ALERT',
         details: `User viewed alert: ${alertId}`,
-        userId: session.user.id
-      }
+        userId: session.user.id,
+      },
     });
-    
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error marking alert as read:', error);
-    return NextResponse.json(
-      { error: 'حدث خطأ في تحديث التنبيه' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'حدث خطأ في تحديث التنبيه' }, { status: 500 });
   }
 }
 
 async function fetchRealAlertsFromDatabase(user: any) {
   const alerts = [];
-
   try {
+    const facilityIds = await getUserFacilityIds(user.id, user.role);
+
     // 1. تنبيهات نقاط التحكم الحرجة
     const criticalRecords = await prisma.record.count({
       where: {
         status: 'CRITICAL',
-        createdAt: {
-          gte: new Date(Date.now() - 24 * 60 * 60 * 1000)
-        },
-        facility: {
-          user: {  // تم التصحيح هنا من users إلى user
-            id: user.id
-          }
-        }
-      }
+        createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+        ...(facilityIds !== null && { facilityId: { in: facilityIds } }),
+      },
     });
-
     if (criticalRecords > 0) {
       alerts.push({
         id: 'records-critical',
@@ -81,25 +65,26 @@ async function fetchRealAlertsFromDatabase(user: any) {
         count: criticalRecords,
         link: '/records?status=CRITICAL',
         priority: 1,
-        icon: '⚠️',
-        timestamp: new Date().toISOString()
+        
+        timestamp: new Date().toISOString(),
       });
     }
 
-    // 2. تنبيهات درجات الحرارة الخطرة
+    // 2. تنبيهات درجات الحرارة الخطرة (تخزين)
     const storageAlerts = await prisma.storageLog.count({
       where: {
         OR: [
           { temperature: { gt: 8 } },
           { temperature: { lt: -18 } },
-          { humidity: { gt: 80 } }
+          { humidity: { gt: 80 } },
         ],
-        measuredAt: { 
-          gte: new Date(Date.now() - 12 * 60 * 60 * 1000)
-        }
-      }
+        measuredAt: { gte: new Date(Date.now() - 12 * 60 * 60 * 1000) },
+        // فلترة حسب منشآت المستخدم عبر العلاقة storage.facilityId
+        ...(facilityIds !== null && {
+          storage: { facilityId: { in: facilityIds } },
+        }),
+      },
     });
-
     if (storageAlerts > 0) {
       alerts.push({
         id: 'storage-alerts',
@@ -109,8 +94,8 @@ async function fetchRealAlertsFromDatabase(user: any) {
         count: storageAlerts,
         link: '/storages',
         priority: 2,
-        icon: '❄️',
-        timestamp: new Date().toISOString()
+        
+        timestamp: new Date().toISOString(),
       });
     }
 
@@ -118,14 +103,9 @@ async function fetchRealAlertsFromDatabase(user: any) {
     const highRiskHazards = await prisma.hazard.count({
       where: {
         severity: { in: ['HIGH', 'CRITICAL'] },
-        facility: {
-          user: {  // تم التصحيح هنا من users إلى user
-            id: user.id
-          }
-        }
-      }
+        ...(facilityIds !== null && { facilityId: { in: facilityIds } }),
+      },
     });
-
     if (highRiskHazards > 0) {
       alerts.push({
         id: 'hazards-high',
@@ -135,19 +115,14 @@ async function fetchRealAlertsFromDatabase(user: any) {
         count: highRiskHazards,
         link: '/hazards?severity=HIGH,CRITICAL',
         priority: 2,
-        icon: '🔥',
-        timestamp: new Date().toISOString()
+       
+        timestamp: new Date().toISOString(),
       });
     }
 
-    // 4. تنبيهات خاصة بالمسؤولين
-    if (user.role === 'ADMIN') {
-      const inactiveUsers = await prisma.user.count({
-        where: { 
-          isActive: false
-        }
-      });
-
+    // 4. تنبيهات خاصة بالمسؤولين (تقتصر على SUPER_ADMIN أو للمنشآت)
+    if (user.role === 'SUPER_ADMIN') {
+      const inactiveUsers = await prisma.user.count({ where: { isActive: false } });
       if (inactiveUsers > 0) {
         alerts.push({
           id: 'users-inactive',
@@ -157,19 +132,14 @@ async function fetchRealAlertsFromDatabase(user: any) {
           count: inactiveUsers,
           link: '/users?status=inactive',
           priority: 3,
-          icon: '👥',
-          timestamp: new Date().toISOString()
+          
+          timestamp: new Date().toISOString(),
         });
       }
 
       const emptyPlans = await prisma.haccpPlan.count({
-        where: {
-          steps: {
-            none: {}
-          }
-        }
+        where: { steps: { none: {} } },
       });
-
       if (emptyPlans > 0) {
         alerts.push({
           id: 'plans-empty',
@@ -179,25 +149,20 @@ async function fetchRealAlertsFromDatabase(user: any) {
           count: emptyPlans,
           link: '/haccp-plans',
           priority: 2,
-          icon: '📋',
-          timestamp: new Date().toISOString()
+        
+          timestamp: new Date().toISOString(),
         });
       }
     }
 
-    // 5. تنبيهات للمديرين ومديري الجودة
+    // 5. تنبيهات للمديرين ومديري الجودة (داخل منشآتهم)
     if (['ADMIN', 'QUALITY_MANAGER', 'QUALITY_INSPECTOR'].includes(user.role)) {
       const ccpsWithoutActions = await prisma.cCP.count({
         where: {
           correctiveActions: null,
-          facility: {
-            user: {  // تم التصحيح هنا من users إلى user
-              id: user.id
-            }
-          }
-        }
+          ...(facilityIds !== null && { facilityId: { in: facilityIds } }),
+        },
       });
-
       if (ccpsWithoutActions > 0) {
         alerts.push({
           id: 'ccps-no-actions',
@@ -207,28 +172,21 @@ async function fetchRealAlertsFromDatabase(user: any) {
           count: ccpsWithoutActions,
           link: '/ccps',
           priority: 2,
-          icon: '🛡️',
-          timestamp: new Date().toISOString()
+          
+          timestamp: new Date().toISOString(),
         });
       }
     }
 
-    // 6. تنبيهات للمشغلين والفنيين
+    // 6. تنبيهات للمشغلين والفنيين (داخل منشآتهم)
     if (['OPERATOR', 'FOOD_TECHNICIAN'].includes(user.role)) {
       const recentRecordsNeeded = await prisma.record.count({
         where: {
-          measuredAt: {
-            gte: new Date(Date.now() - 6 * 60 * 60 * 1000)
-          },
+          measuredAt: { gte: new Date(Date.now() - 6 * 60 * 60 * 1000) },
           value: '',
-          facility: {
-            user: {  // تم التصحيح هنا من users إلى user
-              id: user.id
-            }
-          }
-        }
+          ...(facilityIds !== null && { facilityId: { in: facilityIds } }),
+        },
       });
-
       if (recentRecordsNeeded > 0) {
         alerts.push({
           id: 'records-pending',
@@ -239,11 +197,10 @@ async function fetchRealAlertsFromDatabase(user: any) {
           link: '/records',
           priority: 3,
           icon: '📝',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
     }
-
   } catch (error) {
     console.error('Error fetching alerts from database:', error);
     alerts.push({
@@ -255,7 +212,7 @@ async function fetchRealAlertsFromDatabase(user: any) {
       link: '#',
       priority: 4,
       icon: '🔄',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
@@ -269,22 +226,9 @@ async function fetchRealAlertsFromDatabase(user: any) {
       link: '#',
       priority: 4,
       icon: '✅',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
   return alerts.sort((a, b) => a.priority - b.priority);
-}
-
-// أنواع TypeScript
-interface Alert {
-  id: string;
-  type: 'info' | 'warning' | 'critical';
-  title: string;
-  message: string;
-  count: number;
-  link: string;
-  priority: number;
-  icon: string;
-  timestamp: string;
 }

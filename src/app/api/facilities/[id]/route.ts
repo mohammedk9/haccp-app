@@ -1,36 +1,29 @@
-// src/app/api/facilities/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { PublicUser } from "@/types/user";
+import { getUserFacilityIds } from "@/lib/permissions";
 
-interface Params {
-  id: string;
-}
-
-// GET منشأة محددة
-export async function GET(req: NextRequest, { params }: { params: Params }) {
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions);
+    if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
-    if (!session) {
-      return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
+    const facilityIds = await getUserFacilityIds(session.user.id, session.user.role);
+    if (facilityIds !== null && !facilityIds.includes(params.id)) {
+      return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
     }
 
     const facility = await prisma.facility.findUnique({
       where: { id: params.id },
       include: {
-        user: { select: { id: true, name: true, email: true, role: true } }, // المالك
+        user: { select: { id: true, name: true, email: true, role: true } },
         hazards: true,
         ccps: true,
       },
     });
 
-    if (!facility) {
-      return NextResponse.json({ error: "المنشأة غير موجودة" }, { status: 404 });
-    }
-
+    if (!facility) return NextResponse.json({ error: "المنشأة غير موجودة" }, { status: 404 });
     return NextResponse.json(facility);
   } catch (error) {
     console.error("Facility GET Error:", error);
@@ -38,17 +31,14 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
   }
 }
 
-// PUT تحديث منشأة
-export async function PUT(req: NextRequest, { params }: { params: Params }) {
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions);
+    if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
-    if (!session) {
-      return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
-    }
-
-    if (!["ADMIN", "QUALITY_MANAGER"].includes(session.user.role)) {
-      return NextResponse.json({ error: "ليس لديك صلاحية" }, { status: 403 });
+    const facilityIds = await getUserFacilityIds(session.user.id, session.user.role);
+    if (facilityIds !== null && !facilityIds.includes(params.id)) {
+      return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
     }
 
     const body = await req.json();
@@ -57,9 +47,7 @@ export async function PUT(req: NextRequest, { params }: { params: Params }) {
     const facility = await prisma.facility.update({
       where: { id: params.id },
       data: { name, location, type, description },
-      include: {
-        user: { select: { id: true, name: true, email: true, role: true } },
-      },
+      include: { user: { select: { id: true, name: true, email: true, role: true } } },
     });
 
     await prisma.auditLog.create({
@@ -79,22 +67,17 @@ export async function PUT(req: NextRequest, { params }: { params: Params }) {
   }
 }
 
-// DELETE حذف منشأة
-export async function DELETE(req: NextRequest, { params }: { params: Params }) {
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions);
+    if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
-    if (!session) {
-      return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
+    const facilityIds = await getUserFacilityIds(session.user.id, session.user.role);
+    if (facilityIds !== null && !facilityIds.includes(params.id)) {
+      return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
     }
 
-    if (session.user.role !== "ADMIN") {
-      return NextResponse.json({ error: "ليس لديك صلاحية" }, { status: 403 });
-    }
-
-    const facility = await prisma.facility.delete({
-      where: { id: params.id },
-    });
+    const facility = await prisma.facility.delete({ where: { id: params.id } });
 
     await prisma.auditLog.create({
       data: {

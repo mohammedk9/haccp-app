@@ -1,20 +1,24 @@
-// src/app/api/hazards/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getUserFacilityIds } from "@/lib/permissions";
 
-// ✅ GET: جلب خطر واحد
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+async function checkHazardAccess(hazardId: string, userId: string, role: string) {
+  const hazard = await prisma.hazard.findUnique({ where: { id: hazardId }, select: { facilityId: true } });
+  if (!hazard) return null;
+  const facilityIds = await getUserFacilityIds(userId, role);
+  if (facilityIds !== null && !facilityIds.includes(hazard.facilityId)) return null;
+  return hazard;
+}
+
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions);
+    if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
-    if (!session) {
-      return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
-    }
+    const access = await checkHazardAccess(params.id, session.user.id, session.user.role);
+    if (!access) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
 
     const hazard = await prisma.hazard.findUnique({
       where: { id: params.id },
@@ -23,104 +27,56 @@ export async function GET(
         user: { select: { id: true, name: true, email: true, role: true } },
       },
     });
-
-    if (!hazard) {
-      return NextResponse.json({ error: "الخطر غير موجود" }, { status: 404 });
-    }
-
     return NextResponse.json(hazard);
   } catch (error) {
-    console.error("Hazard GET Error:", error);
     return NextResponse.json({ error: "خطأ في الخادم" }, { status: 500 });
   }
 }
 
-// ✅ PUT: تحديث خطر
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions);
+    if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
-    if (!session) {
-      return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
-    }
-
-    if (!["ADMIN", "QUALITY_MANAGER"].includes(session.user.role)) {
-      return NextResponse.json({ error: "ليس لديك صلاحية" }, { status: 403 });
-    }
+    const access = await checkHazardAccess(params.id, session.user.id, session.user.role);
+    if (!access) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
 
     const body = await req.json();
     const { name, type, description, severity, facilityId } = body;
 
-    const updatedHazard = await prisma.hazard.update({
+    if (facilityId) {
+      const facilityIds = await getUserFacilityIds(session.user.id, session.user.role);
+      if (facilityIds !== null && !facilityIds.includes(facilityId)) {
+        return NextResponse.json({ error: "منشأة غير مصرح بها" }, { status: 403 });
+      }
+    }
+
+    const updated = await prisma.hazard.update({
       where: { id: params.id },
-      data: {
-        name,
-        type,
-        description,
-        severity,
-        facility: facilityId ? { connect: { id: facilityId } } : undefined,
-      },
+      data: { name, type, description, severity, facilityId },
       include: {
         facility: { select: { name: true } },
         user: { select: { id: true, name: true, email: true, role: true } },
       },
     });
 
-    await prisma.auditLog.create({
-      data: {
-        action: "UPDATE_HAZARD",
-        targetId: updatedHazard.id,
-        targetType: "HAZARD",
-        userId: session.user.id,
-        details: `تم تحديث خطر: ${updatedHazard.name}`,
-      },
-    });
-
-    return NextResponse.json(updatedHazard);
+    return NextResponse.json(updated);
   } catch (error) {
-    console.error("Hazard PUT Error:", error);
-    return NextResponse.json({ error: "خطأ في تحديث الخطر" }, { status: 500 });
+    return NextResponse.json({ error: "خطأ في الخادم" }, { status: 500 });
   }
 }
 
-// ✅ DELETE: حذف خطر
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions);
+    if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
-    if (!session) {
-      return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
-    }
+    const access = await checkHazardAccess(params.id, session.user.id, session.user.role);
+    if (!access) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
 
-    if (!["ADMIN", "QUALITY_MANAGER"].includes(session.user.role)) {
-      return NextResponse.json({ error: "ليس لديك صلاحية" }, { status: 403 });
-    }
-
-    const hazardId = params.id;
-
-    await prisma.hazard.delete({
-      where: { id: hazardId },
-    });
-
-    await prisma.auditLog.create({
-      data: {
-        action: "DELETE_HAZARD",
-        targetId: hazardId,
-        targetType: "HAZARD",
-        userId: session.user.id,
-        details: `تم حذف خطر بالمعرّف: ${hazardId}`,
-      },
-    });
-
+    await prisma.hazard.delete({ where: { id: params.id } });
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Hazard DELETE Error:", error);
-    return NextResponse.json({ error: "خطأ أثناء حذف الخطر" }, { status: 500 });
+    return NextResponse.json({ error: "خطأ في الخادم" }, { status: 500 });
   }
 }

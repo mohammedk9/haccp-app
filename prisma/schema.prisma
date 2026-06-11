@@ -8,6 +8,7 @@ generator client {
 }
 
 enum Role {
+  SUPER_ADMIN          // ← جديد
   ADMIN
   OPERATOR
   QUALITY_MANAGER
@@ -30,15 +31,16 @@ model User {
   updatedAt DateTime @updatedAt
 
   // العلاقات العكسية
-  facilities   Facility[]
-  hazards      Hazard[]
-  ccps         CCP[]
-  records      Record[]
-  auditLogs    AuditLog[]
-  haccpPlans   HaccpPlan[]
-  haccpSteps   HaccpStep[]
-  haccpRecords HaccpRecord[]
-  products     Product[]
+  facilities      Facility[]
+  hazards         Hazard[]
+  ccps            CCP[]
+  records         Record[]
+  auditLogs       AuditLog[]
+  haccpPlans      HaccpPlan[]
+  haccpSteps      HaccpStep[]
+  haccpRecords    HaccpRecord[]
+  products        Product[]
+  userFacilities  UserFacility[]       // ← جديد
 }
 
 model Facility {
@@ -52,11 +54,23 @@ model Facility {
   createdBy   String
 
   // العلاقات
-  hazards    Hazard[]
-  ccps       CCP[]
-  records    Record[]
-  haccpPlans HaccpPlan[]
-  user       User        @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  hazards         Hazard[]
+  ccps            CCP[]
+  records         Record[]
+  haccpPlans      HaccpPlan[]
+  products        Product[]      
+  storages        Storage[] 
+  user            User             @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  userFacilities  UserFacility[]   // ← جديد
+}
+
+model UserFacility {
+  userId     String
+  facilityId String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  facility   Facility  @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+
+  @@id([userId, facilityId])
 }
 
 model Hazard {
@@ -70,7 +84,6 @@ model Hazard {
   facilityId  String
   createdBy   String
 
-  // العلاقات
   ccps     CCP[]
   facility Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
   user     User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
@@ -89,7 +102,6 @@ model CCP {
   hazardId            String
   createdBy           String
 
-  // العلاقات
   records  Record[]
   facility Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
   hazard   Hazard   @relation(fields: [hazardId], references: [id], onDelete: Cascade)
@@ -122,7 +134,6 @@ model HaccpPlan {
   facilityId  String?
   userId      String
 
-  // العلاقات
   steps    HaccpStep[]
   facility Facility?   @relation(fields: [facilityId], references: [id])
   user     User        @relation(fields: [userId], references: [id])
@@ -139,7 +150,6 @@ model HaccpStep {
   planId      String
   userId      String
 
-  // العلاقات
   plan    HaccpPlan     @relation(fields: [planId], references: [id])
   records HaccpRecord[]
   user    User          @relation(fields: [userId], references: [id])
@@ -154,7 +164,6 @@ model HaccpRecord {
   stepId     String
   userId     String
 
-  // العلاقات
   step HaccpStep @relation(fields: [stepId], references: [id])
   user User      @relation(fields: [userId], references: [id])
 }
@@ -168,7 +177,6 @@ model AuditLog {
   createdAt  DateTime @default(now())
   userId     String
 
-  // العلاقات
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
@@ -180,9 +188,10 @@ model Product {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   createdBy   String
+  facilityId  String?                 // ← جديد (اختياري)
 
-  // العلاقة مع المستخدم
-  user User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  user     User      @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  facility Facility? @relation(fields: [facilityId], references: [id])
 }
 
 model Storage {
@@ -193,8 +202,10 @@ model Storage {
   capacity  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  facilityId String?                 // ← جديد (اختياري)
 
-  logs StorageLog[]
+  logs     StorageLog[]
+  facility Facility? @relation(fields: [facilityId], references: [id])
 }
 
 model StorageLog {

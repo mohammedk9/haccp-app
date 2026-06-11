@@ -1,10 +1,26 @@
-// src/app/api/users/[id]/route.ts
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import type { NextRequest } from 'next/server';
 import bcrypt from 'bcryptjs';
+import { getUserFacilityIds } from '@/lib/permissions';
+
+// دالة مساعدة للتحقق من أن المستخدم الذي نحاول تعديله ينتمي إلى إحدى منشآت الطالب
+async function canManageUser(targetUserId: string, managerId: string, managerRole: string) {
+  if (managerRole === 'SUPER_ADMIN') return true;
+  const managerFacilities = await getUserFacilityIds(managerId, managerRole);
+  if (!managerFacilities || managerFacilities.length === 0) return false;
+
+  const targetUser = await prisma.user.findUnique({
+    where: { id: targetUserId },
+    select: { userFacilities: { select: { facilityId: true } } }
+  });
+  if (!targetUser) return false;
+
+  const targetFacilityIds = targetUser.userFacilities.map(uf => uf.facilityId);
+  return targetFacilityIds.some(id => managerFacilities.includes(id));
+}
 
 // GET: جلب بيانات مستخدم
 export async function GET(
@@ -13,13 +29,18 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions);
+    if (!session) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
 
-    if (!session) {
-      return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    const requestedId = context.params.id;
+    const currentUserId = session.user.id;
+
+    // المستخدم يرى نفسه أو المسؤول يرى من في منشأته
+    if (requestedId !== currentUserId && !(await canManageUser(requestedId, session.user.id, session.user.role))) {
+      return NextResponse.json({ error: 'ليس لديك صلاحية عرض بيانات هذا المستخدم' }, { status: 403 });
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: context.params.id },
+      where: { id: requestedId },
       select: {
         id: true,
         name: true,
@@ -31,13 +52,10 @@ export async function GET(
       },
     });
 
-    if (!user) {
-      return NextResponse.json({ error: 'المستخدم غير موجود' }, { status: 404 });
-    }
+    if (!user) return NextResponse.json({ error: 'المستخدم غير موجود' }, { status: 404 });
 
     return NextResponse.json(user);
   } catch (error) {
-    console.error('User GET Error:', error);
     return NextResponse.json({ error: 'خطأ في الخادم' }, { status: 500 });
   }
 }
@@ -49,12 +67,9 @@ export async function PUT(
 ) {
   try {
     const session = await getServerSession(authOptions);
+    if (!session) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
 
-    if (!session) {
-      return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
-    }
-
-    if (!['ADMIN', 'QUALITY_MANAGER'].includes(session.user.role)) {
+    if (!(await canManageUser(context.params.id, session.user.id, session.user.role))) {
       return NextResponse.json({ error: 'ليس لديك صلاحية' }, { status: 403 });
     }
 
@@ -83,7 +98,6 @@ export async function PUT(
 
     return NextResponse.json(user);
   } catch (error) {
-    console.error('User PUT Error:', error);
     return NextResponse.json({ error: 'خطأ في تحديث المستخدم' }, { status: 500 });
   }
 }
@@ -95,20 +109,15 @@ export async function DELETE(
 ) {
   try {
     const session = await getServerSession(authOptions);
+    if (!session) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
 
-    if (!session) {
-      return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
-    }
-
-    if (session.user.role !== 'ADMIN') {
+    if (!(await canManageUser(context.params.id, session.user.id, session.user.role))) {
       return NextResponse.json({ error: 'ليس لديك صلاحية' }, { status: 403 });
     }
 
     await prisma.user.delete({ where: { id: context.params.id } });
-
     return NextResponse.json({ message: 'تم حذف المستخدم' });
   } catch (error) {
-    console.error('User DELETE Error:', error);
     return NextResponse.json({ error: 'خطأ في حذف المستخدم' }, { status: 500 });
   }
 }

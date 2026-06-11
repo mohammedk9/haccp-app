@@ -1,4 +1,3 @@
-// src/app/api/users/roles/roles.ts
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
@@ -10,21 +9,25 @@ type RoleItem = {
   permissions: string[];
 };
 
-// GET الحصول على قائمة الأدوار المتاحة
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-
     if (!session) {
       return NextResponse.json({ message: 'غير مصرح بالوصول' }, { status: 401 });
     }
 
-    const roles: RoleItem[] = [
+    const allRoles: RoleItem[] = [
+      {
+        value: 'SUPER_ADMIN',
+        label: 'المشرف العام',
+        description: 'تحكم كامل في كل المنشآت والمستخدمين والإعدادات',
+        permissions: ['all'],
+      },
       {
         value: 'ADMIN',
-        label: 'مدير النظام',
-        description: 'صلاحية كاملة على النظام وإدارة جميع المستخدمين',
-        permissions: ['all'],
+        label: 'مدير المنشأة',
+        description: 'إدارة منشأته الخاصة وإضافة موظفين وعمليات HACCP',
+        permissions: ['facility_manage', 'users_manage', 'haccp_manage'],
       },
       {
         value: 'QUALITY_MANAGER',
@@ -76,12 +79,14 @@ export async function GET() {
       },
     ];
 
-    return NextResponse.json(roles);
+    // ✅ إخفاء SUPER_ADMIN عن غير المشرفين العامين
+    if (session.user.role !== 'SUPER_ADMIN') {
+      return NextResponse.json(allRoles.filter(role => role.value !== 'SUPER_ADMIN'));
+    }
+
+    return NextResponse.json(allRoles);
   } catch (error) {
     console.error('Error fetching roles:', error);
-    return NextResponse.json(
-      { message: 'حدث خطأ في جلب قائمة الأدوار' },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: 'حدث خطأ في جلب قائمة الأدوار' }, { status: 500 });
   }
 }

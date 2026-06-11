@@ -1,63 +1,70 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth"; // استخدم named export
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getUserFacilityIds } from "@/lib/permissions";
 
-export async function GET(request: Request) {
+export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
-    const { searchParams } = new URL(request.url);
-    const facilityId = searchParams.get("facilityId");
+    const facilityIds = await getUserFacilityIds(session.user.id, session.user.role);
+    if (facilityIds !== null && facilityIds.length === 0) {
+      return NextResponse.json({ ccps: [], pagination: { page: 1, limit: 10, total: 0, pages: 0 } });
+    }
+
+    const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
+    const reqFacilityId = searchParams.get("facilityId");
     const skip = (page - 1) * limit;
 
-    const where = facilityId ? { facilityId } : {};
+    const where: any = {};
+    if (facilityIds !== null) {
+      where.facilityId = reqFacilityId && facilityIds.includes(reqFacilityId) ? reqFacilityId : { in: facilityIds };
+    } else if (reqFacilityId) {
+      where.facilityId = reqFacilityId;
+    }
 
-    const ccps = await prisma.cCP.findMany({
-      where,
-      skip,
-      take: limit,
-      orderBy: { createdAt: "desc" },
-      include: {
-        facility: { select: { name: true } },
-        hazard: { select: { name: true } },
-        user: { select: { name: true, email: true } }, // استخدم field relation
-      },
-    });
-
-    const total = await prisma.cCP.count({ where });
+    const [ccps, total] = await Promise.all([
+      prisma.cCP.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: "desc" },
+        include: {
+          facility: { select: { name: true } },
+          hazard: { select: { name: true } },
+          user: { select: { name: true, email: true } },
+        },
+      }),
+      prisma.cCP.count({ where }),
+    ]);
 
     return NextResponse.json({
       ccps,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit),
-      },
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) },
     });
   } catch (error) {
-    console.error("CCPs GET Error:", error);
     return NextResponse.json({ error: "خطأ في الخادم" }, { status: 500 });
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
-    if (!["ADMIN", "QUALITY_MANAGER"].includes(session.user.role)) {
-      return NextResponse.json({ error: "ليس لديك صلاحية" }, { status: 403 });
-    }
-
-    const body = await request.json();
+    const body = await req.json();
     const { name, description, criticalLimit, monitoringProcedure, facilityId, hazardId } = body;
     if (!name || !facilityId || !hazardId) {
       return NextResponse.json({ error: "الاسم والمنشأة والخطر مطلوبة" }, { status: 400 });
+    }
+
+    const facilityIds = await getUserFacilityIds(session.user.id, session.user.role);
+    if (facilityIds !== null && !facilityIds.includes(facilityId)) {
+      return NextResponse.json({ error: "منشأة غير مصرح بها" }, { status: 403 });
     }
 
     const ccp = await prisma.cCP.create({
@@ -68,7 +75,7 @@ export async function POST(request: Request) {
         monitoringProcedure,
         facility: { connect: { id: facilityId } },
         hazard: { connect: { id: hazardId } },
-        user: { connect: { id: session.user.id } }, // ✅ هنا
+        user: { connect: { id: session.user.id } },
       },
       include: {
         facility: { select: { name: true } },
@@ -89,7 +96,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json(ccp, { status: 201 });
   } catch (error) {
-    console.error("CCPs POST Error:", error);
     return NextResponse.json({ error: "خطأ في إنشاء نقطة التحكم" }, { status: 500 });
   }
 }

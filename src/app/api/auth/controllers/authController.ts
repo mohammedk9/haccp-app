@@ -1,25 +1,29 @@
-// src/app/api/auth/controllers/authController.ts
-import { PrismaClient, Role, User } from "@prisma/client";
+import { PrismaClient, Role } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 import generateToken from "../utils/generateToken";
 
-
-
-
 const prisma = new PrismaClient();
 
-// Register user
 export const registerUser = async (req: NextRequest) => {
   try {
     const { name, email, password, role } = await req.json();
+
+    // ✅ منع الأدوار الحساسة من التسجيل العام
+    const forbiddenRoles: Role[] = ['ADMIN', 'SUPER_ADMIN', 'QUALITY_MANAGER'];
+    if (role && forbiddenRoles.includes(role as Role)) {
+      return NextResponse.json(
+        { message: "لا يمكن التسجيل بهذا الدور. للحصول على دور مدير أو مشرف، يُرجى التواصل عبر البريد: mohammdk9559@gmail.com" },
+        { status: 403 }
+      );
+    }
 
     const userExists = await prisma.user.findUnique({
       where: { email },
     });
 
     if (userExists) {
-      return NextResponse.json({ message: "User already exists" }, { status: 400 });
+      return NextResponse.json({ message: "هذا البريد مستخدم بالفعل" }, { status: 400 });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);

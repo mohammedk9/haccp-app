@@ -1,10 +1,9 @@
-// src/app/api/users/stats/stats.ts
 import { NextResponse } from 'next/server';
-import { PrismaClient, Role } from '@prisma/client';
+import { Role } from '@prisma/client';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';          // ✅ استخدام الموحّد
+import { getUserFacilityIds } from '@/lib/permissions';
 
 type UserStats = {
   total: number;
@@ -23,39 +22,35 @@ type UserStats = {
   };
 };
 
-// GET إحصائيات المستخدمين
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
+    if (!session) return NextResponse.json({ message: 'غير مصرح بالوصول' }, { status: 401 });
 
-    if (!session) {
-      return NextResponse.json(
-        { message: 'غير مصرح بالوصول' },
-        { status: 401 }
-      );
+    const facilityIds = await getUserFacilityIds(session.user.id, session.user.role);
+
+    // SUPER_ADMIN يرى إحصائيات النظام ككل،
+    // أما غيره فيرى إحصائيات مستخدمي منشأته فقط
+    const where: any = {};
+    if (facilityIds !== null) {
+      where.userFacilities = { some: { facilityId: { in: facilityIds } } };
     }
 
-    if (session.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { message: 'ليس لديك صلاحية للوصول إلى هذه الإحصائيات' },
-        { status: 403 }
-      );
-    }
-
-    const totalUsers = await prisma.user.count();
-    const activeUsers = await prisma.user.count({ where: { isActive: true } });
-    const inactiveUsers = await prisma.user.count({ where: { isActive: false } });
+    const totalUsers = await prisma.user.count({ where });
+    const activeUsers = await prisma.user.count({ where: { ...where, isActive: true } });
+    const inactiveUsers = await prisma.user.count({ where: { ...where, isActive: false } });
 
     const usersByRole = await prisma.user.groupBy({
       by: ['role'],
       _count: { id: true },
+      where,
       orderBy: { role: 'asc' },
     });
 
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     const newUsersLast30Days = await prisma.user.count({
-      where: { createdAt: { gte: thirtyDaysAgo } },
+      where: { ...where, createdAt: { gte: thirtyDaysAgo } },
     });
 
     const stats: UserStats = {
@@ -80,10 +75,7 @@ export async function GET() {
 
     return NextResponse.json(stats);
   } catch (error) {
-    console.error('Error fetching user stats:', error);
-    return NextResponse.json(
-      { message: 'حدث خطأ في جلب الإحصائيات' },
-      { status: 500 }
-    );
+    console.error(error);
+    return NextResponse.json({ message: 'حدث خطأ في جلب الإحصائيات' }, { status: 500 });
   }
 }

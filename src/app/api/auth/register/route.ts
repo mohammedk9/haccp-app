@@ -1,6 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import { registerUser } from "../controllers/authController";
+import { NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
-  return await registerUser(req);
+export async function POST() {
+  return NextResponse.json(
+    { message: "التسجيل الذاتي متوقف حاليًا. يُرجى التواصل مع الإدارة." },
+    { status: 403 }
+  );
 }

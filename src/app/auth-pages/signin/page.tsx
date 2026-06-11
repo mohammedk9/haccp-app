@@ -1,4 +1,3 @@
-// src/app/auth-pages/signin/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -71,7 +70,7 @@ export default function SignIn() {
 
         <form onSubmit={handleSubmit} className="signin-form">
           <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
-          
+
           {error && (
             <div className="error-message">
               <span className="error-icon">⚠️</span>
@@ -105,8 +104,8 @@ export default function SignIn() {
             />
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="signin-button"
             disabled={isLoading}
           >
@@ -116,15 +115,16 @@ export default function SignIn() {
 
         <div className="signin-footer">
           <p>
-            ليس لديك حساب؟{' '}
-            <Link href="/auth-pages/register" className="link">
-              إنشاء حساب جديد
-            </Link>
-          </p>
-          <p>
             <Link href="/auth-pages/forgot-password" className="link">
               نسيت كلمة المرور؟
             </Link>
+          </p>
+          <p className="contact-message">
+            ليس لديك حساب؟ تواصل مع الإدارة عبر البريد:
+            <br />
+            <a href="mailto:mohammdk9559@gmail.com" className="link">
+              mohammdk9559@gmail.com
+            </a>
           </p>
         </div>
       </div>

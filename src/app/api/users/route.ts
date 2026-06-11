@@ -1,9 +1,9 @@
-// src/app/api/users/route.ts
 import { NextResponse } from 'next/server';
 import { PrismaClient, Role } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
+import { getUserFacilityIds } from '@/lib/permissions';
 
 const prisma = new PrismaClient();
 
@@ -25,38 +25,48 @@ type Pagination = {
   hasPrev: boolean;
 };
 
-// GET جميع المستخدمين
+// GET جميع المستخدمين (حسب الصلاحية)
 export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-
     if (!session) {
       return NextResponse.json({ message: 'غير مصرح بالوصول' }, { status: 401 });
     }
 
-    if (session.user.role !== 'ADMIN') {
-      return NextResponse.json({ message: 'ليس لديك صلاحية للوصول إلى هذه البيانات' }, { status: 403 });
+    const facilityIds = await getUserFacilityIds(session.user.id, session.user.role);
+
+    if (facilityIds !== null && facilityIds.length === 0) {
+      return NextResponse.json({
+        users: [],
+        pagination: { currentPage: 1, totalPages: 0, totalUsers: 0, hasNext: false, hasPrev: false }
+      });
     }
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1', 10);
     const limit = parseInt(searchParams.get('limit') || '10', 10);
     const search = searchParams.get('search') || '';
-    const role = searchParams.get('role') || '';
+    const roleFilter = searchParams.get('role') || '';   // غيرت الاسم لتفادي التعارض
 
     const skip = (page - 1) * limit;
 
     const where: any = {};
 
+    if (facilityIds !== null) {
+      where.userFacilities = {
+        some: { facilityId: { in: facilityIds } }
+      };
+    }
+
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } }
+        { name: { contains: search, mode: 'insensitive' as const } },
+        { email: { contains: search, mode: 'insensitive' as const } }
       ];
     }
 
-    if (role) {
-      where.role = role;
+    if (roleFilter) {
+      where.role = roleFilter;
     }
 
     const users: UserResponse[] = await prisma.user.findMany({
@@ -97,20 +107,20 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-
     if (!session) {
       return NextResponse.json({ message: 'غير مصرح بالوصول' }, { status: 401 });
     }
 
-    if (session.user.role !== 'ADMIN') {
-      return NextResponse.json({ message: 'ليس لديك صلاحية لإنشاء مستخدمين' }, { status: 403 });
-    }
-
-    const body: { name: string; email: string; password: string; role?: Role; isActive?: boolean } = await request.json();
-    const { name, email, password, role, isActive } = body;
+    const body: { name: string; email: string; password: string; role?: Role; facilityId?: string; isActive?: boolean } = await request.json();
+    const { name, email, password, role, facilityId, isActive } = body;
 
     if (!name || !email || !password) {
       return NextResponse.json({ message: 'الاسم والبريد الإلكتروني وكلمة المرور مطلوبة' }, { status: 400 });
+    }
+
+    // ✅ منع إنشاء SUPER_ADMIN إلا من قبل SUPER_ADMIN نفسه
+    if (role === 'SUPER_ADMIN' && session.user.role !== 'SUPER_ADMIN') {
+      return NextResponse.json({ message: 'لا يمكنك إنشاء مشرف عام' }, { status: 403 });
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -127,6 +137,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'هذا البريد الإلكتروني مستخدم بالفعل' }, { status: 409 });
     }
 
+    const facilityIds = await getUserFacilityIds(session.user.id, session.user.role);
+    if (facilityIds !== null) {
+      if (!facilityId || !facilityIds.includes(facilityId)) {
+        return NextResponse.json({ message: 'المنشأة المحددة غير صالحة أو غير مصرح بها' }, { status: 403 });
+      }
+    }
+
     const hashedPassword = await bcrypt.hash(password, 12);
 
     const user: UserResponse = await prisma.user.create({
@@ -135,7 +152,10 @@ export async function POST(request: Request) {
         email,
         password: hashedPassword,
         role: role || 'OPERATOR',
-        isActive: isActive !== undefined ? isActive : true
+        isActive: isActive !== undefined ? isActive : true,
+        userFacilities: facilityId ? {
+          create: [{ facilityId }]
+        } : undefined
       },
       select: {
         id: true,
