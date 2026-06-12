@@ -1,4 +1,3 @@
-// src/app/haccp-plans/[id]/edit/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -10,7 +9,7 @@ import '../../haccp-plans.css';
 interface PlanFormData {
   title: string;
   description: string;
-  facilityId: string; // ← أضف هذا السطر
+  facilityId: string;
   type: string;
   stepNumber: number;
   isCCP: boolean;
@@ -18,16 +17,10 @@ interface PlanFormData {
   hazardLevel: string;
 }
 
-const [formData, setFormData] = useState<PlanFormData>({
-  title: '',
-  description: '',
-  facilityId: '',
-  type: '',
-  stepNumber: 1,
-  isCCP: false,
-  hazardType: '',
-  hazardLevel: ''
-});
+interface Facility {
+  id: string;
+  name: string;
+}
 
 interface HaccpPlan {
   id: string;
@@ -42,27 +35,22 @@ interface HaccpPlan {
   hazardLevel: string;
 }
 
-interface Facility {
-  id: string;
-  name: string;
-}
-
 export default function EditHaccpPlanPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const params = useParams();
   const planId = params.id as string;
 
-const [formData, setFormData] = useState<PlanFormData>({
-  title: '',
-  description: '',
-  facilityId: '',
-  type: '',
-  stepNumber: 1,
-  isCCP: false,
-  hazardType: '',
-  hazardLevel: ''
-});
+  const [formData, setFormData] = useState<PlanFormData>({
+    title: '',
+    description: '',
+    facilityId: '',
+    type: '',
+    stepNumber: 1,
+    isCCP: false,
+    hazardType: '',
+    hazardLevel: ''
+  });
 
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -72,12 +60,10 @@ const [formData, setFormData] = useState<PlanFormData>({
 
   useEffect(() => {
     if (status === 'loading') return;
-    
     if (!session) {
       router.push('/auth-pages/signin');
       return;
     }
-
     fetchFacilities();
     fetchPlanData();
   }, [session, status, router, planId]);
@@ -89,32 +75,29 @@ const [formData, setFormData] = useState<PlanFormData>({
         const data = await response.json();
         setFacilities(data.facilities);
       }
-    } catch (error) {
-      console.error('Error fetching facilities:', error);
+    } catch (err) {
+      console.error('Error fetching facilities:', err);
     }
   };
 
   const fetchPlanData = async () => {
     try {
       const response = await fetch(`/api/haccp-plans/${planId}`);
-      if (!response.ok) {
-        throw new Error('فشل في تحميل بيانات الخطة');
-      }
+      if (!response.ok) throw new Error('فشل في تحميل بيانات الخطة');
 
       const planData: HaccpPlan = await response.json();
-     setFormData({
-  title: planData.title,
-  description: planData.description || '',
-  facilityId: planData.facilityId || '',
-  type: planData.type || '',
-  stepNumber: planData.stepNumber || 1,
-  isCCP: planData.isCCP || false,
-  hazardType: planData.hazardType || '',
-  hazardLevel: planData.hazardLevel || ''
-});
-    } catch (error: any) {
-      console.error('Error fetching plan data:', error);
-      setError(error.message || 'حدث خطأ أثناء تحميل البيانات');
+      setFormData({
+        title: planData.title,
+        description: planData.description || '',
+        facilityId: planData.facilityId || '',
+        type: planData.type || '',
+        stepNumber: planData.stepNumber || 1,
+        isCCP: planData.isCCP || false,
+        hazardType: planData.hazardType || '',
+        hazardLevel: planData.hazardLevel || ''
+      });
+    } catch (err: any) {
+      setError(err.message || 'حدث خطأ أثناء تحميل البيانات');
     } finally {
       setIsLoading(false);
     }
@@ -122,10 +105,7 @@ const [formData, setFormData] = useState<PlanFormData>({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -134,7 +114,6 @@ const [formData, setFormData] = useState<PlanFormData>({
     setMessage('');
     setError('');
 
-    // التحقق من صحة البيانات
     if (!formData.title) {
       setError('عنوان الخطة مطلوب');
       setIsSubmitting(false);
@@ -144,27 +123,17 @@ const [formData, setFormData] = useState<PlanFormData>({
     try {
       const response = await fetch(`/api/haccp-plans/${planId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'فشل في تحديث الخطة');
-      }
+      if (!response.ok) throw new Error(data.message || 'فشل في تحديث الخطة');
 
       setMessage('تم تحديث الخطة بنجاح');
-      
-      // الانتقال إلى صفحة الخطط بعد نجاح العملية
-      setTimeout(() => {
-        router.push('/haccp-plans');
-      }, 2000);
-    } catch (error: any) {
-      console.error('Error updating plan:', error);
-      setError(error.message || 'حدث خطأ أثناء تحديث الخطة');
+      setTimeout(() => router.push('/haccp-plans'), 2000);
+    } catch (err: any) {
+      setError(err.message || 'حدث خطأ أثناء تحديث الخطة');
     } finally {
       setIsSubmitting(false);
     }
@@ -182,83 +151,38 @@ const [formData, setFormData] = useState<PlanFormData>({
     <div className="haccp-plans-container">
       <div className="haccp-plans-header">
         <h1>تعديل خطة HACCP</h1>
-        <Link href="/haccp-plans" className="add-plan-btn">
-          رجوع إلى القائمة
-        </Link>
+        <Link href="/haccp-plans" className="add-plan-btn">رجوع إلى القائمة</Link>
       </div>
 
-      {message && (
-        <div className="success-message">
-          <span className="success-icon">✅</span>
-          {message}
-        </div>
-      )}
-
-      {error && (
-        <div className="error-message">
-          <span className="error-icon">⚠️</span>
-          {error}
-        </div>
-      )}
+      {message && <div className="success-message"><span className="success-icon">✅</span>{message}</div>}
+      {error && <div className="error-message"><span className="error-icon">⚠️</span>{error}</div>}
 
       <form onSubmit={handleSubmit} className="plan-form">
         <div className="form-section">
           <h3>المعلومات الأساسية</h3>
-          
           <div className="form-group">
             <label htmlFor="title">عنوان الخطة *</label>
-            <input
-              id="title"
-              name="title"
-              type="text"
-              value={formData.title}
-              onChange={handleChange}
-              placeholder="أدخل عنوان الخطة"
-              required
-            />
+            <input id="title" name="title" type="text" value={formData.title} onChange={handleChange} placeholder="أدخل عنوان الخطة" required />
           </div>
-
           <div className="form-group">
             <label htmlFor="facilityId">المنشأة (اختياري)</label>
-            <select
-              id="facilityId"
-              name="facilityId"
-              value={formData.facilityId}
-              onChange={handleChange}
-            >
+            <select id="facilityId" name="facilityId" value={formData.facilityId} onChange={handleChange}>
               <option value="">اختر المنشأة</option>
-              {facilities.map((facility) => (
-                <option key={facility.id} value={facility.id}>
-                  {facility.name}
-                </option>
+              {facilities.map(facility => (
+                <option key={facility.id} value={facility.id}>{facility.name}</option>
               ))}
             </select>
           </div>
-
           <div className="form-group">
             <label htmlFor="description">وصف الخطة</label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder="أدخل وصفاً للخطة (اختياري)"
-              rows={4}
-            />
+            <textarea id="description" name="description" value={formData.description} onChange={handleChange} placeholder="أدخل وصفاً للخطة (اختياري)" rows={4} />
           </div>
         </div>
-
         <div className="form-actions">
-          <button 
-            type="submit" 
-            className="save-btn"
-            disabled={isSubmitting}
-          >
+          <button type="submit" className="save-btn" disabled={isSubmitting}>
             {isSubmitting ? 'جاري التحديث...' : 'تحديث الخطة'}
           </button>
-          <Link href="/haccp-plans" className="cancel-btn">
-            إلغاء
-          </Link>
+          <Link href="/haccp-plans" className="cancel-btn">إلغاء</Link>
         </div>
       </form>
     </div>

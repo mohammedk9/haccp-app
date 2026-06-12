@@ -40,7 +40,6 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   const body = await req.json();
   const { name, description, facilityId } = body;
 
-  // إذا حاول تغيير المنشأة، نتحقق من صلاحيته للمنشأة الجديدة
   if (facilityId) {
     const facilityIds = await getUserFacilityIds(session.user.id, session.user.role);
     if (facilityIds !== null && !facilityIds.includes(facilityId)) {
