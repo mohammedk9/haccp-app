@@ -57,30 +57,22 @@ export default function UsersPage() {
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const [isDarkMode, setIsDarkMode] = useState(false); // ✅ إضافة حالة Dark Mode هنا
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
-  // حالة البحث والتصفية
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState<Pagination | null>(null);
-
-  // الأدوار المتاحة
   const [roles, setRoles] = useState<Role[]>([]);
 
-  // ✅ إضافة useEffect لـ Dark Mode هنا
   useEffect(() => {
-    // التحقق من تفضيل النظام
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const savedMode = localStorage.getItem('darkMode');
-    
     setIsDarkMode(savedMode ? savedMode === 'true' : prefersDark);
   }, []);
 
-  // ✅ إضافة useEffect لتطبيق Dark Mode على body
   useEffect(() => {
-    // تطبيق الوضع على body
     if (isDarkMode) {
       document.body.setAttribute('data-theme', 'dark');
     } else {
@@ -97,7 +89,8 @@ export default function UsersPage() {
       return;
     }
 
-    if (session.user.role !== 'ADMIN') {
+    // 🛡️ السماح للمشرف العام ومدير النظام فقط
+    if (!['ADMIN', 'SUPER_ADMIN'].includes(session.user.role)) {
       router.push('/dashboard');
       return;
     }
@@ -176,8 +169,8 @@ export default function UsersPage() {
       }
 
       setMessage('تم حذف المستخدم بنجاح');
-      fetchUsers(); // إعادة تحميل القائمة
-      fetchStats(); // تحديث الإحصائيات
+      fetchUsers();
+      fetchStats();
     } catch (error: any) {
       console.error('Error deleting user:', error);
       setError(error.message || 'حدث خطأ أثناء حذف المستخدم');
@@ -188,7 +181,7 @@ export default function UsersPage() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setCurrentPage(1); // العودة للصفحة الأولى عند البحث
+    setCurrentPage(1);
     fetchUsers();
   };
 
@@ -199,7 +192,6 @@ export default function UsersPage() {
     setCurrentPage(1);
   };
 
-  // ✅ إضافة دالة تبديل Dark Mode هنا
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
   };
@@ -227,7 +219,6 @@ export default function UsersPage() {
 
   return (
     <div className="users-container">
-      {/* ✅ إضافة زر تبديل Dark Mode هنا */}
       <button 
         className="theme-toggle"
         onClick={toggleDarkMode}
@@ -236,7 +227,6 @@ export default function UsersPage() {
         {isDarkMode ? '☀️' : '🌙'}
       </button>
 
-      {/* رأس الصفحة */}
       <div className="users-header">
         <div className="header-content">
           <h1>إدارة المستخدمين</h1>
@@ -246,7 +236,6 @@ export default function UsersPage() {
         </div>
       </div>
 
-      {/* بطاقات الإحصائيات */}
       {stats && (
         <div className="stats-cards">
           <div className="stat-card">
@@ -284,7 +273,6 @@ export default function UsersPage() {
         </div>
       )}
 
-      {/* رسائل النجاح والخطأ */}
       {message && (
         <div className="success-message">
           <span className="success-icon">✅</span>
@@ -299,7 +287,6 @@ export default function UsersPage() {
         </div>
       )}
 
-      {/* أدوات البحث والتصفية */}
       <div className="users-tools">
         <form onSubmit={handleSearch} className="search-form">
           <div className="search-group">
@@ -346,7 +333,6 @@ export default function UsersPage() {
         </div>
       </div>
 
-      {/* جدول المستخدمين */}
       <div className="users-table-container">
         <table className="users-table">
           <thead>
@@ -409,7 +395,6 @@ export default function UsersPage() {
         </table>
       </div>
 
-      {/* الترقيم */}
       {pagination && pagination.totalPages > 1 && (
         <div className="pagination">
           <button
@@ -434,7 +419,6 @@ export default function UsersPage() {
         </div>
       )}
 
-      {/* معلومات الترقيم */}
       {pagination && (
         <div className="pagination-summary">
           عرض {users.length} من أصل {pagination.totalUsers} مستخدم

@@ -60,7 +60,7 @@ export function useDashboardData() {
         fetch('/api/facilities?limit=5').catch(() => ({ json: () => ({ facilities: [], pagination: { total: 0 } }) })),
         fetch('/api/ccps?limit=5').catch(() => ({ json: () => ({ ccps: [], pagination: { total: 0 } }) })),
         fetch('/api/records?limit=5').catch(() => ({ json: () => ({ records: [], pagination: { total: 0 } }) })),
-        fetch('/api/storages?limit=3').catch(() => ({ json: () => ({ storages: [], pagination: { total: 0 } }) })),
+        fetch('/api/storage?limit=3').catch(() => ({ json: () => ({ storages: [], pagination: { total: 0 } }) })),
         fetch('/api/hazards?limit=3').catch(() => ({ json: () => ({ hazards: [], pagination: { total: 0 } }) }))
       ];
 

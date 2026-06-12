@@ -7,7 +7,6 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import '../../users.css';
 
-
 interface UserFormData {
   name: string;
   email: string;
@@ -23,6 +22,20 @@ interface Role {
   description: string;
   permissions: string[];
 }
+
+// 🛠️ دالة مساعدة للقائمة الافتراضية
+const getDefaultRoles = (): Role[] => [
+  { value: "SUPER_ADMIN", label: "المشرف العام", description: "", permissions: [] },
+  { value: "ADMIN", label: "مدير النظام", description: "", permissions: [] },
+  { value: "QUALITY_MANAGER", label: "مدير الجودة", description: "", permissions: [] },
+  { value: "OPERATOR", label: "مشغل", description: "", permissions: [] },
+  { value: "AUDITOR", label: "مراجع", description: "", permissions: [] },
+  { value: "NUTRITION_SPECIALIST", label: "أخصائي تغذية", description: "", permissions: [] },
+  { value: "GENERAL_SUPERVISOR", label: "مشرف عام", description: "", permissions: [] },
+  { value: "QUALITY_INSPECTOR", label: "مراقب جودة", description: "", permissions: [] },
+  { value: "FOOD_INSPECTOR", label: "مفتش أغذية", description: "", permissions: [] },
+  { value: "FOOD_TECHNICIAN", label: "فني أغذية", description: "", permissions: [] }
+];
 
 export default function EditUserPage() {
   const { data: session, status } = useSession();
@@ -54,7 +67,8 @@ export default function EditUserPage() {
       return;
     }
 
-    if (session.user.role !== 'ADMIN') {
+    // 🛡️ السماح للمشرف العام ومدير النظام فقط
+    if (!['ADMIN', 'SUPER_ADMIN'].includes(session.user.role)) {
       router.push('/dashboard');
       return;
     }
@@ -74,9 +88,12 @@ export default function EditUserPage() {
       if (response.ok) {
         const rolesData = await response.json();
         setRoles(rolesData);
+      } else {
+        setRoles(getDefaultRoles());
       }
     } catch (error) {
       console.error('Error fetching roles:', error);
+      setRoles(getDefaultRoles());
     }
   };
 
@@ -118,7 +135,6 @@ export default function EditUserPage() {
     setMessage('');
     setError('');
 
-    // التحقق من صحة البيانات
     if (!formData.name || !formData.email) {
       setError('الاسم والبريد الإلكتروني مطلوبان');
       setIsSubmitting(false);
@@ -167,39 +183,9 @@ export default function EditUserPage() {
 
       const response = await fetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody),
       });
-
-      const getDefaultRoles = (): Role[] => [
-  { value: "ADMIN", label: "مدير النظام", description: "", permissions: [] },
-  { value: "QUALITY_MANAGER", label: "مدير الجودة", description: "", permissions: [] },
-  { value: "OPERATOR", label: "مشغل", description: "", permissions: [] },
-  { value: "AUDITOR", label: "مراجع", description: "", permissions: [] },
-  { value: "NUTRITION_SPECIALIST", label: "أخصائي تغذية", description: "", permissions: [] },
-  { value: "GENERAL_SUPERVISOR", label: "مشرف عام", description: "", permissions: [] },
-  { value: "QUALITY_INSPECTOR", label: "مراقب جودة", description: "", permissions: [] },
-  { value: "FOOD_INSPECTOR", label: "مفتش أغذية", description: "", permissions: [] },
-  { value: "FOOD_TECHNICIAN", label: "فني أغذية", description: "", permissions: [] }
-];
-
-// ثم في fetchRoles، استخدمها كاحتياطي
-const fetchRoles = async () => {
-  try {
-    const response = await fetch('/api/users/roles');
-    if (response.ok) {
-      const rolesData = await response.json();
-      setRoles(rolesData);
-    } else {
-      setRoles(getDefaultRoles());
-    }
-  } catch (error) {
-    console.error('Error fetching roles:', error);
-    setRoles(getDefaultRoles());
-  }
-};
 
       const data = await response.json();
 
@@ -209,7 +195,6 @@ const fetchRoles = async () => {
 
       setMessage(`تم ${isEditMode ? 'تحديث' : 'إنشاء'} المستخدم بنجاح`);
       
-      // الانتقال إلى صفحة المستخدمين بعد نجاح العملية
       setTimeout(() => {
         router.push('/users');
       }, 2000);
@@ -233,9 +218,7 @@ const fetchRoles = async () => {
     <div className="users-container">
       <div className="users-header">
         <h1>{isEditMode ? 'تعديل المستخدم' : 'إضافة مستخدم جديد'}</h1>
-        <Link href="/users" className="add-user-btn">
-          رجوع إلى القائمة
-        </Link>
+        <Link href="/users" className="add-user-btn">رجوع إلى القائمة</Link>
       </div>
 
       {message && (
@@ -255,60 +238,26 @@ const fetchRoles = async () => {
       <form onSubmit={handleSubmit} className="user-form">
         <div className="form-section">
           <h3>المعلومات الأساسية</h3>
-          
           <div className="form-group">
             <label htmlFor="name">الاسم الكامل *</label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="أدخل الاسم الكامل"
-              required
-            />
+            <input id="name" name="name" type="text" value={formData.name} onChange={handleChange} placeholder="أدخل الاسم الكامل" required />
           </div>
-
           <div className="form-group">
             <label htmlFor="email">البريد الإلكتروني *</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="أدخل البريد الإلكتروني"
-              required
-            />
+            <input id="email" name="email" type="email" value={formData.email} onChange={handleChange} placeholder="أدخل البريد الإلكتروني" required />
           </div>
-
           <div className="form-group">
             <label htmlFor="role">الدور *</label>
-            <select
-              id="role"
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              required
-            >
+            <select id="role" name="role" value={formData.role} onChange={handleChange} required>
               {roles.map((role) => (
-                <option key={role.value} value={role.value}>
-                  {role.label}
-                </option>
+                <option key={role.value} value={role.value}>{role.label}</option>
               ))}
             </select>
           </div>
-
           <div className="form-group checkbox-group">
             <label htmlFor="isActive">الحالة</label>
             <div className="checkbox-container">
-              <input
-                id="isActive"
-                name="isActive"
-                type="checkbox"
-                checked={formData.isActive}
-                onChange={handleChange}
-              />
+              <input id="isActive" name="isActive" type="checkbox" checked={formData.isActive} onChange={handleChange} />
               <span className="checkmark"></span>
               <span className="checkbox-label">مفعل</span>
             </div>
@@ -317,46 +266,21 @@ const fetchRoles = async () => {
 
         <div className="form-section">
           <h3>كلمة المرور {isEditMode ? '(اتركها فارغة إذا لم ترد التغيير)' : '*'}</h3>
-          
           <div className="form-group">
             <label htmlFor="password">كلمة المرور {!isEditMode && '*'}</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder={isEditMode ? 'كلمة المرور الجديدة (اختياري)' : 'أدخل كلمة المرور'}
-              minLength={6}
-              required={!isEditMode}
-            />
+            <input id="password" name="password" type="password" value={formData.password} onChange={handleChange} placeholder={isEditMode ? 'كلمة المرور الجديدة (اختياري)' : 'أدخل كلمة المرور'} minLength={6} required={!isEditMode} />
           </div>
-
           <div className="form-group">
             <label htmlFor="confirmPassword">تأكيد كلمة المرور {!isEditMode && '*'}</label>
-            <input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="أعد إدخال كلمة المرور"
-              required={!isEditMode}
-            />
+            <input id="confirmPassword" name="confirmPassword" type="password" value={formData.confirmPassword} onChange={handleChange} placeholder="أعد إدخال كلمة المرور" required={!isEditMode} />
           </div>
         </div>
 
         <div className="form-actions">
-          <button 
-            type="submit" 
-            className="save-btn"
-            disabled={isSubmitting}
-          >
+          <button type="submit" className="save-btn" disabled={isSubmitting}>
             {isSubmitting ? 'جاري الحفظ...' : (isEditMode ? 'تحديث' : 'إنشاء')}
           </button>
-          <Link href="/users" className="cancel-btn">
-            إلغاء
-          </Link>
+          <Link href="/users" className="cancel-btn">إلغاء</Link>
         </div>
       </form>
     </div>

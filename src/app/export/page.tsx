@@ -28,7 +28,7 @@ export default function ExportPage() {
   }
 
   // التحقق من صلاحية المستخدم (يفترض أن يكون لديه صلاحية ADMIN)
-  if (session.user.role !== 'ADMIN') {
+  if (session.user.role !== 'ADMIN', 'SUPER_ADMIN') {
     router.push('/dashboard');
     return null;
   }

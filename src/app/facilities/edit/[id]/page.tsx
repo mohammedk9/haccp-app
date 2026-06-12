@@ -61,7 +61,7 @@ export default function EditFacilityPage() {
       return;
     }
 
-    if (!['ADMIN', 'QUALITY_MANAGER'].includes(session.user.role)) {
+    if (!['ADMIN', 'QUALITY_MANAGER', 'SUPER_ADMIN'].includes(session.user.role)) {
       router.push('/dashboard');
       return;
     }
