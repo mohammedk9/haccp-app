@@ -44,9 +44,12 @@ export async function GET(req: NextRequest) {
       facilities,
       pagination: { page, limit, total, pages: Math.ceil(total / limit) },
     });
-  } catch (error) {
-    console.error("Facilities GET Error:", error);
-    return NextResponse.json({ error: "خطأ في الخادم" }, { status: 500 });
+  } catch (error: any) {
+    // 👇 هذا السطر الجديد هو المفتاح
+    return NextResponse.json(
+      { error: "تفاصيل الخطأ: " + (error?.message || error) },
+      { status: 500 }
+    );
   }
 }
 
@@ -71,7 +74,6 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // ربط المستخدم الحالي بالمنشأة الجديدة تلقائياً
     await prisma.userFacility.create({
       data: { userId: session.user.id, facilityId: facility.id },
     });
@@ -87,8 +89,10 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(facility, { status: 201 });
-  } catch (error) {
-    console.error("Facilities POST Error:", error);
-    return NextResponse.json({ error: "خطأ في إنشاء المنشأة" }, { status: 500 });
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: "تفاصيل الخطأ: " + (error?.message || error) },
+      { status: 500 }
+    );
   }
 }
