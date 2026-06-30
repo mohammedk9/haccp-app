@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -44,30 +44,14 @@ export default function CCPsPage() {
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   
-  // حالة البحث والتصفية
   const [searchTerm, setSearchTerm] = useState('');
   const [facilityFilter, setFacilityFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 10;
 
-  useEffect(() => {
-    if (status === 'loading') return;
-    
-    if (!session) {
-      router.push('/auth-pages/signin');
-      return;
-    }
-
-    if (!['ADMIN', 'QUALITY_MANAGER', 'SUPER_ADMIN'].includes(session.user.role)) {
-      router.push('/dashboard');
-      return;
-    }
-
-    fetchCCPs();
-  }, [session, status, router, currentPage, searchTerm, facilityFilter]);
-
-  const fetchCCPs = async () => {
+  const fetchCCPs = useCallback(async () => {
     try {
       setIsLoading(true);
       setError('');
@@ -94,7 +78,23 @@ export default function CCPsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentPage, searchTerm, facilityFilter]);
+
+  useEffect(() => {
+    if (status === 'loading') return;
+    
+    if (!session) {
+      router.push('/auth-pages/signin');
+      return;
+    }
+
+    if (!['ADMIN', 'QUALITY_MANAGER', 'SUPER_ADMIN'].includes(session.user.role)) {
+      router.push('/dashboard');
+      return;
+    }
+
+    fetchCCPs();
+  }, [session, status, router, fetchCCPs]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,8 +102,15 @@ export default function CCPsPage() {
     fetchCCPs();
   };
 
+  const handleReset = () => {
+    setSearchTerm('');
+    setFacilityFilter('');
+    setCurrentPage(1);
+    fetchCCPs();
+  };
+
   const handleDelete = async (ccpId: string, ccpName: string) => {
-    if (!confirm(`هل أنت متأكد من حذف نقطة التحكم "${ccpName}"؟`)) {
+    if (!confirm(`هل أنت متأكد من حذف نقطة التحكم "${ccpName}"؟\n\nلا يمكن التراجع عن هذا الإجراء.`)) {
       return;
     }
 
@@ -117,19 +124,26 @@ export default function CCPsPage() {
       }
 
       setMessage('تم حذف نقطة التحكم بنجاح');
-      fetchCCPs(); // إعادة تحميل البيانات
+      fetchCCPs();
+      
+      setTimeout(() => setMessage(''), 3000);
     } catch (error: any) {
       console.error('Error deleting CCP:', error);
       setError(error.message || 'حدث خطأ أثناء حذف نقطة التحكم');
+      setTimeout(() => setError(''), 5000);
     }
   };
 
-  const [message, setMessage] = useState('');
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
-  if (isLoading) {
+  if (isLoading && ccps.length === 0) {
     return (
       <div className="ccps-container">
-        <div className="loading">جاري تحميل البيانات...</div>
+        <div className="loading">
+          <span>جاري تحميل البيانات...</span>
+        </div>
       </div>
     );
   }
@@ -137,67 +151,83 @@ export default function CCPsPage() {
   return (
     <div className="ccps-container">
       <div className="ccps-header">
-        <h1>إدارة نقاط التحكم الحرجة (CCPs)</h1>
+        <div>
+          <h1>نقاط التحكم الحرجة</h1>
+          <p style={{ color: 'var(--text-secondary)', marginTop: '8px', fontSize: '15px', fontWeight: 500 }}>
+            إدارة ومراقبة نقاط التحكم الحرجة (CCPs) في المنشآت
+          </p>
+        </div>
         <Link href="/ccps/create" className="add-ccp-btn">
-          إضافة نقطة تحكم جديدة
+          <i className="bi bi-plus-lg"></i>
+          إضافة نقطة تحكم
         </Link>
       </div>
 
       {message && (
         <div className="success-message">
-          <span className="success-icon">✅</span>
+          <span className="success-icon"><i className="bi bi-check-circle-fill"></i></span>
           {message}
         </div>
       )}
 
       {error && (
         <div className="error-message">
-          <span className="error-icon">⚠️</span>
+          <span className="error-icon"><i className="bi bi-exclamation-triangle-fill"></i></span>
           {error}
         </div>
       )}
 
-      {/* شريط البحث والتصفية */}
       <div className="filters-section">
         <form onSubmit={handleSearch} className="search-form">
-          <input
-            type="text"
-            placeholder="ابحث باسم نقطة التحكم أو الوصف..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
+          <div style={{ position: 'relative', flex: 1, minWidth: '280px' }}>
+            <i 
+              className="bi bi-search" 
+              style={{ 
+                position: 'absolute', 
+                right: '16px', 
+                top: '50%', 
+                transform: 'translateY(-50%)',
+                color: 'var(--text-tertiary)',
+                fontSize: '18px'
+              }}
+            ></i>
+            <input
+              type="text"
+              placeholder="ابحث باسم نقطة التحكم أو الوصف..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+              style={{ paddingRight: '48px' }}
+            />
+          </div>
           
           <button type="submit" className="search-btn">
+            <i className="bi bi-search"></i>
             بحث
           </button>
           <button 
             type="button" 
-            onClick={() => {
-              setSearchTerm('');
-              setFacilityFilter('');
-              setCurrentPage(1);
-            }}
+            onClick={handleReset}
             className="reset-btn"
           >
+            <i className="bi bi-arrow-counterclockwise"></i>
             إعادة تعيين
           </button>
         </form>
       </div>
 
-      {/* جدول نقاط التحكم الحرجة */}
       <div className="ccps-table-container">
         <table className="ccps-table">
           <thead>
             <tr>
-              <th>اسم نقطة التحكم</th>
+              <th><i className="bi bi-gear-wide-connected" style={{ marginLeft: '6px' }}></i>الاسم</th>
               <th>الوصف</th>
               <th>الحد الحرج</th>
-              <th>إجراءات المراقبة</th>
-              <th>المنشأة</th>
-              <th>الخطر المرتبط</th>
-              <th>تم الإضافة بواسطة</th>
-              <th>تاريخ الإضافة</th>
+              <th>المراقبة</th>
+              <th><i className="bi bi-building" style={{ marginLeft: '6px' }}></i>المنشأة</th>
+              <th><i className="bi bi-exclamation-diamond" style={{ marginLeft: '6px' }}></i>الخطر</th>
+              <th><i className="bi bi-person" style={{ marginLeft: '6px' }}></i>المستخدم</th>
+              <th><i className="bi bi-calendar" style={{ marginLeft: '6px' }}></i>التاريخ</th>
               <th>الإجراءات</th>
             </tr>
           </thead>
@@ -206,31 +236,33 @@ export default function CCPsPage() {
               ccps.map((ccp) => (
                 <tr key={ccp.id}>
                   <td>
-                    {/* جعل اسم نقطة التحكم قابلاً للنقل للنقر للتفاصيل */}
                     <Link 
                       href={`/ccps/${ccp.id}/edit`} 
                       className="ccp-name-link"
-                      title="النقر للتفاصيل والتعديل"
+                      title="تعديل نقطة التحكم"
                     >
-                      <strong>{ccp.name}</strong>
+                      <i className="bi bi-pencil-square" style={{ marginLeft: '6px', fontSize: '14px', opacity: 0.7 }}></i>
+                      {ccp.name}
                     </Link>
                   </td>
-                  <td className="description-cell">
-                    {ccp.description || 'لا يوجد وصف'}
+                  <td className="description-cell" title={ccp.description || ''}>
+                    {ccp.description || '—'}
                   </td>
-                  <td className="description-cell">
-                    {ccp.criticalLimit || 'غير محدد'}
+                  <td className="description-cell" title={ccp.criticalLimit || ''}>
+                    {ccp.criticalLimit || '—'}
                   </td>
-                  <td className="description-cell">
-                    {ccp.monitoringProcedure || 'غير محدد'}
+                  <td className="description-cell" title={ccp.monitoringProcedure || ''}>
+                    {ccp.monitoringProcedure || '—'}
                   </td>
                   <td>
                     <span className="facility-badge">
+                      <i className="bi bi-building" style={{ marginLeft: '4px' }}></i>
                       {ccp.facility.name}
                     </span>
                   </td>
                   <td>
                     <span className="hazard-badge">
+                      <i className="bi bi-exclamation-triangle" style={{ marginLeft: '4px' }}></i>
                       {ccp.hazard.name}
                     </span>
                   </td>
@@ -238,19 +270,18 @@ export default function CCPsPage() {
                   <td>{new Date(ccp.createdAt).toLocaleDateString('ar-SA')}</td>
                   <td>
                     <div className="action-buttons">
-                      {/* زر واحد يجمع بين العرض والتعديل */}
                       <Link 
                         href={`/ccps/${ccp.id}/edit`} 
                         className="edit-btn"
-                        title="عرض وتعديل نقطة التحكم"
+                        title="تعديل"
                       >
-                        <i className="bi bi-eye"></i>
-                        تفاصيل
+                        <i className="bi bi-pencil"></i>
+                        تعديل
                       </Link>
                       <button
                         onClick={() => handleDelete(ccp.id, ccp.name)}
                         className="delete-btn"
-                        title="حذف نقطة التحكم"
+                        title="حذف"
                       >
                         <i className="bi bi-trash"></i>
                         حذف
@@ -261,8 +292,14 @@ export default function CCPsPage() {
               ))
             ) : (
               <tr>
-                <td colSpan={9} className="no-data">
-                  لا توجد نقاط تحكم حرجة
+                <td colSpan={9} style={{ border: 'none' }}>
+                  <div className="no-data">
+                    <i className="bi bi-inbox" style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.5, display: 'block' }}></i>
+                    <p>لا توجد نقاط تحكم حرجة</p>
+                    <p style={{ fontSize: '14px', marginTop: '8px', opacity: 0.7 }}>
+                      يمكنك إضافة نقطة تحكم جديدة بالنقر على الزر أعلاه
+                    </p>
+                  </div>
                 </td>
               </tr>
             )}
@@ -270,34 +307,56 @@ export default function CCPsPage() {
         </table>
       </div>
 
-      {/* الترقيم (Pagination) */}
       {pagination && pagination.pages > 1 && (
         <div className="pagination">
           <button
-            onClick={() => setCurrentPage(pagination.page - 1)}
+            onClick={() => handlePageChange(pagination.page - 1)}
             disabled={pagination.page <= 1}
             className="pagination-btn"
+            aria-label="الصفحة السابقة"
           >
+            <i className="bi bi-chevron-right"></i>
             السابق
           </button>
           
-          <span className="pagination-info">
-            الصفحة {pagination.page} من {pagination.pages}
-          </span>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            {Array.from({ length: pagination.pages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className="pagination-btn"
+                style={{
+                  minWidth: '44px',
+                  justifyContent: 'center',
+                  background: page === pagination.page ? 'var(--accent-color)' : 'var(--bg-tertiary)',
+                  color: page === pagination.page ? 'white' : 'var(--text-secondary)',
+                  padding: '10px 16px'
+                }}
+                aria-label={`الصفحة ${page}`}
+                aria-current={page === pagination.page ? 'page' : undefined}
+              >
+                {page}
+              </button>
+            ))}
+          </div>
           
           <button
-            onClick={() => setCurrentPage(pagination.page + 1)}
+            onClick={() => handlePageChange(pagination.page + 1)}
             disabled={pagination.page >= pagination.pages}
             className="pagination-btn"
+            aria-label="الصفحة التالية"
           >
             التالي
+            <i className="bi bi-chevron-left"></i>
           </button>
         </div>
       )}
 
-      {pagination && (
+      {pagination && pagination.total > 0 && (
         <div className="total-count">
-          إجمالي نقاط التحكم الحرجة: {pagination.total}
+          <i className="bi bi-list-ul" style={{ marginLeft: '8px' }}></i>
+          إجمالي نقاط التحكم الحرجة: <strong>{pagination.total}</strong> | 
+          الصفحة <strong>{pagination.page}</strong> من <strong>{pagination.pages}</strong>
         </div>
       )}
     </div>

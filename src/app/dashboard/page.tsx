@@ -16,7 +16,6 @@ import { useDashboardData } from '@/hooks/useDashboardData';
 import { useTheme } from '@/hooks/useTheme';
 import './dashboard.css';
 
-// تعريف الأنواع المحلية إذا كانت غير موجودة في dashboard.ts
 interface LocalAlert {
   id: string;
   type: 'info' | 'warning' | 'critical';
@@ -66,7 +65,6 @@ export default function Dashboard() {
     handleMarkAsRead
   } = useDashboardData();
 
-  // التحقق من المصادقة
   useEffect(() => {
     if (status === 'loading') return;
     if (!session) {
@@ -75,7 +73,6 @@ export default function Dashboard() {
     }
   }, [session, status, router]);
 
-  // جلب البيانات عند التحميل
   useEffect(() => {
     if (status === 'authenticated') {
       const loadData = async () => {
@@ -98,14 +95,12 @@ export default function Dashboard() {
   }, [fetchDashboardData, fetchAlerts]);
 
   const handleLogout = async () => {
-        // يتم استدعاء signOut() ثم يتم توجيه المستخدم تلقائيًا لصفحة تسجيل الدخول
-        await signOut({ callbackUrl: '/auth-pages/signin' }); 
-    };
-
+    await signOut({ callbackUrl: '/auth-pages/signin' }); 
+  };
 
   if (status === 'loading' || isLoading) {
     return (
-      <div className="dashboard-container">
+      <div className="dashboard-container" data-theme="light" dir="rtl">
         <LoadingSpinner message="جاري تحميل البيانات..." />
       </div>
     );
@@ -113,11 +108,8 @@ export default function Dashboard() {
 
   if (error) {
     return (
-      <div className="dashboard-container">
-        <ErrorMessage 
-          message={error}
-          onRetry={fetchDashboardData}
-        />
+      <div className="dashboard-container" data-theme="light" dir="rtl">
+        <ErrorMessage message={error} onRetry={fetchDashboardData} />
       </div>
     );
   }
@@ -127,7 +119,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className={`dashboard-container ${isDarkMode ? 'dark' : 'light'}`}>
+    <div data-theme={isDarkMode ? 'dark' : 'light'} className="dashboard-container" dir="rtl">
       <DashboardHeader
         searchTerm={searchTerm}
         onSearch={handleSearch}
@@ -137,10 +129,7 @@ export default function Dashboard() {
         onLogout={handleLogout}
       />
 
-      <AlertSystem 
-        alerts={alerts as LocalAlert[]} 
-        onMarkAsRead={handleMarkAsRead} 
-      />
+      <AlertSystem alerts={alerts as LocalAlert[]} onMarkAsRead={handleMarkAsRead} />
 
       <StatsGrid 
         dashboardData={dashboardData as LocalDashboardData}
@@ -162,22 +151,18 @@ export default function Dashboard() {
       />
 
       {session.user.role === 'ADMIN' && dashboardData.userStats && (
-        <AdminSection 
-          userStats={dashboardData.userStats}
-          alerts={alerts}
-        />
+        <AdminSection userStats={dashboardData.userStats} alerts={alerts} />
       )}
     </div>
   );
 }
 
-// المكونات الداخلية المساعدة
 function StatsGrid({ dashboardData, userRole, router }: any) {
   const stats = [
     {
       title: "المنشآت",
       value: dashboardData.facilitiesCount || 0,
-      icon: "🏭",
+      icon: "facilities",
       trend: { value: 12, isPositive: true },
       onClick: () => router.push('/facilities'),
       ariaLabel: `عرض المنشآت، العدد: ${dashboardData.facilitiesCount}`
@@ -185,7 +170,7 @@ function StatsGrid({ dashboardData, userRole, router }: any) {
     {
       title: "نقاط التحكم",
       value: dashboardData.ccpsCount || 0,
-      icon: "🛡️",
+      icon: "ccps",
       subtitle: `${dashboardData.recordsCount} سجل`,
       onClick: () => router.push('/ccps'),
       ariaLabel: `عرض نقاط التحكم، العدد: ${dashboardData.ccpsCount}`
@@ -193,7 +178,7 @@ function StatsGrid({ dashboardData, userRole, router }: any) {
     {
       title: "السجلات",
       value: dashboardData.recordsCount || 0,
-      icon: "📊",
+      icon: "records",
       trend: { value: 8, isPositive: true },
       onClick: () => router.push('/records'),
       ariaLabel: `عرض السجلات، العدد: ${dashboardData.recordsCount}`
@@ -201,14 +186,14 @@ function StatsGrid({ dashboardData, userRole, router }: any) {
     {
       title: "وحدات التخزين",
       value: dashboardData.storagesCount || 0,
-      icon: "❄️",
+      icon: "storages",
       onClick: () => router.push('/storages'),
       ariaLabel: `عرض وحدات التخزين، العدد: ${dashboardData.storagesCount}`
     },
     ...(userRole === 'ADMIN' && dashboardData.userStats ? [{
       title: "المستخدمين",
       value: dashboardData.userStats.total || 0,
-      icon: "👥",
+      icon: "users",
       subtitle: `${dashboardData.userStats.active} نشط`,
       onClick: () => router.push('/users'),
       ariaLabel: `عرض المستخدمين، العدد: ${dashboardData.userStats.total}`
@@ -216,7 +201,7 @@ function StatsGrid({ dashboardData, userRole, router }: any) {
     {
       title: "المخاطر",
       value: dashboardData.hazardsCount || 0,
-      icon: "⚠️",
+      icon: "hazards",
       onClick: () => router.push('/hazards'),
       ariaLabel: `عرض المخاطر، العدد: ${dashboardData.hazardsCount}`
     }

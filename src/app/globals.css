@@ -1,4 +1,3 @@
-/* src/app/globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,29 +6,78 @@
   --background: #ffffff;
   --foreground: #171717;
   --font-sans: Arial, Helvetica, sans-serif;
-  
-  /* إضافة متغيرات جديدة */
-  --bg-primary: #f8fafc;
-  --bg-secondary: #ffffff;
-  --text-primary: #2d3748;
-  --text-secondary: #718096;
-  --border-color: #e2e8f0;
-  --accent-color: #667eea;
+
+  --bg-primary: #ffffff;
+  --bg-secondary: #fafafa;
+  --bg-tertiary: #f5f5f5;
+
+  --text-primary: #0a0a0a;
+  --text-secondary: #525252;
+  --text-tertiary: #737373;
+
+  --border-color: #e5e5e5;
+  --border-light: #f5f5f5;
+
+  --accent-color: #0c4a6e;
+  --accent-light: #e0f2fe;
+  --accent-hover: #075985;
+
+  --success-color: #0c4a6e;
+  --success-light: #e0f2fe;
+  --warning-color: #a16207;
+  --warning-light: #fef9c3;
+  --error-color: #dc2626;
+  --error-light: #fee2e2;
+  --info-color: #0369a1;
+  --info-light: #e0f2fe;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    
-    /* متغيرات Dark Mode */
-    --bg-primary: #0f172a;
-    --bg-secondary: #1e293b;
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --border-color: #334155;
-    --accent-color: #818cf8;
-  }
+[data-theme="dark"] {
+  --background: #0a0a0a;
+  --foreground: #ffffff;
+
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #141414;
+  --bg-tertiary: #1a1a1a;
+
+  --text-primary: #ffffff;
+  --text-secondary: #a3a3a3;
+  --text-tertiary: #d4d4d4;
+
+  --border-color: #262626;
+  --border-light: #1a1a1a;
+
+  --accent-color: #0ea5e9;
+  --accent-light: #0c4a6e;
+  --accent-hover: #38bdf8;
+
+  --success-color: #0ea5e9;
+  --success-light: #0c4a6e;
+  --warning-color: #fbbf24;
+  --warning-light: #451a03;
+  --error-color: #f87171;
+  --error-light: #450a0a;
+  --info-color: #0ea5e9;
+  --info-light: #0c4a6e;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
 }
 
 body {
@@ -38,99 +86,10 @@ body {
   font-family: var(--font-sans);
   margin: 0;
   padding: 0;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
 .rtl {
   direction: rtl;
   text-align: right;
-}
-
-/* Dark Mode Toggle Button */
-.theme-toggle {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: var(--accent-color);
-  color: white;
-  border: none;
-  padding: 12px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 18px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-  transition: all 0.3s ease;
-}
-
-.theme-toggle:hover {
-  transform: scale(1.1);
-}
-
-/* تطبيق Dark Mode على جميع الصفحات تلقائياً */
-[data-theme="dark"] {
-  --background: #0f172a;
-  --foreground: #f1f5f9;
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --border-color: #334155;
-  --accent-color: #818cf8;
-}
-
-/* تأكد من أن جميع العناصر تستخدم المتغيرات */
-[data-theme="dark"] body {
-  background: var(--background) !important;
-  color: var(--foreground) !important;
-}
-
-/* تطبيق تلقائي على الفئات الشائعة في تطبيقك */
-[data-theme="dark"] .users-container,
-[data-theme="dark"] .dashboard-container,
-[data-theme="dark"] .storages-container,
-[data-theme="dark"] .reports-container,
-[data-theme="dark"] .records-container,
-[data-theme="dark"] .products-container,
-[data-theme="dark"] .hazards-container,
-[data-theme="dark"] .haccp-plans-container,
-[data-theme="dark"] .facilities-container,
-[data-theme="dark"] .ccps-container,
-[data-theme="dark"] .profile-container {
-  background: var(--bg-primary) !important;
-  color: var(--text-primary) !important;
-}
-
-[data-theme="dark"] .stat-card,
-[data-theme="dark"] .users-table-container,
-[data-theme="dark"] .dashboard-header,
-[data-theme="dark"] .users-tools,
-[data-theme="dark"] .user-form,
-[data-theme="dark"] .recent-items-card,
-[data-theme="dark"] .quick-nav {
-  background: var(--bg-secondary) !important;
-  color: var(--text-primary) !important;
-  border-color: var(--border-color) !important;
-}
-
-[data-theme="dark"] .users-table th {
-  background: var(--bg-primary) !important;
-  color: var(--text-secondary) !important;
-}
-
-[data-theme="dark"] .users-table td {
-  color: var(--text-primary) !important;
-  border-color: var(--border-color) !important;
-}
-
-[data-theme="dark"] input,
-[data-theme="dark"] select,
-[data-theme="dark"] textarea {
-  background: var(--bg-secondary) !important;
-  color: var(--text-primary) !important;
-  border-color: var(--border-color) !important;
-}
-
-[data-theme="dark"] input::placeholder {
-  color: var(--text-secondary) !important;
 }

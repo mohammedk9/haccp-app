@@ -22,19 +22,6 @@ interface Facility {
   name: string;
 }
 
-interface HaccpPlan {
-  id: string;
-  title: string;
-  description: string;
-  facilityId: string;
-  facility?: { name: string };
-  type: string;
-  stepNumber: number;
-  isCCP: boolean;
-  hazardType: string;
-  hazardLevel: string;
-}
-
 export default function EditHaccpPlanPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -51,7 +38,6 @@ export default function EditHaccpPlanPage() {
     hazardType: '',
     hazardLevel: ''
   });
-
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -84,8 +70,7 @@ export default function EditHaccpPlanPage() {
     try {
       const response = await fetch(`/api/haccp-plans/${planId}`);
       if (!response.ok) throw new Error('فشل في تحميل بيانات الخطة');
-
-      const planData: HaccpPlan = await response.json();
+      const planData = await response.json();
       setFormData({
         title: planData.title,
         description: planData.description || '',
@@ -126,7 +111,6 @@ export default function EditHaccpPlanPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
-
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || 'فشل في تحديث الخطة');
 

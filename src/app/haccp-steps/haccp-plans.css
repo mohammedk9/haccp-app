@@ -1,38 +1,61 @@
-/* src/app/haccp-plans/haccp-plans.css */
+/* =====================================================
+   خطوات HACCP - متوافقة مع نظام HACCP
+   أبيض وأسود مع كحلي غامق
+   ===================================================== */
 
 .haccp-plans-container {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background var(--transition-normal), color var(--transition-normal);
+  padding: 24px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  direction: rtl;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  direction: rtl;
 }
 
-/* التصميم العام */
+/* ---------- رأس الصفحة ---------- */
 .haccp-plans-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 2px solid #e0e0e0;
+  align-items: flex-start;
+  margin-bottom: 32px;
+  gap: 24px;
+  flex-wrap: wrap;
+  background: var(--bg-secondary);
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  width: 100%;
 }
 
 .haccp-plans-header h1 {
-  color: #2c3e50;
-  font-size: 2.2rem;
-  margin: 0;
+  font-size: 32px;
   font-weight: 700;
+  margin: 0 0 8px 0;
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .plan-title {
-  color: #7f8c8d;
-  font-size: 1.1rem;
-  margin-top: 5px;
-  font-weight: 400;
+  color: var(--text-secondary);
+  font-size: 16px;
+  margin-top: 4px;
 }
 
-/* الأزرار */
+.header-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ---------- أزرار مشتركة ---------- */
 .add-plan-btn,
 .add-step-btn,
 .save-btn,
@@ -44,299 +67,328 @@
 .move-btn {
   padding: 10px 20px;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  display: inline-block;
-  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
 }
 
 .add-plan-btn,
 .add-step-btn {
-  background-color: #27ae60;
+  background: var(--accent-color);
   color: white;
 }
 
 .add-plan-btn:hover,
 .add-step-btn:hover {
-  background-color: #219a52;
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.edit-btn {
+  background: #f59e0b;
+  color: white;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.edit-btn:hover {
+  background: #d97706;
+  transform: translateY(-1px);
+}
+
+.delete-btn {
+  background: #dc2626;
+  color: white;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.delete-btn:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.steps-btn {
+  background: #8b5cf6;
+  color: white;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.steps-btn:hover {
+  background: #7c3aed;
+  transform: translateY(-1px);
+}
+
+.back-btn,
+.cancel-btn {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.back-btn:hover,
+.cancel-btn:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
   transform: translateY(-2px);
 }
 
+.move-btn {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 6px 10px;
+  min-width: 36px;
+  justify-content: center;
+}
+
+.move-btn:hover:not(:disabled) {
+  background: var(--accent-light);
+  color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.move-btn:disabled {
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+  border-color: var(--border-color);
+  box-shadow: none;
+}
+
 .save-btn {
-  background-color: #3498db;
+  background: var(--accent-color);
   color: white;
   min-width: 120px;
 }
 
 .save-btn:hover {
-  background-color: #2980b9;
+  background: var(--accent-hover);
   transform: translateY(-2px);
 }
 
 .save-btn:disabled {
-  background-color: #bdc3c7;
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
-.edit-btn {
-  background-color: #f39c12;
-  color: white;
-  padding: 6px 12px;
-  font-size: 0.8rem;
-}
-
-.edit-btn:hover {
-  background-color: #e67e22;
-}
-
-.delete-btn {
-  background-color: #e74c3c;
-  color: white;
-  padding: 6px 12px;
-  font-size: 0.8rem;
-}
-
-.delete-btn:hover {
-  background-color: #c0392b;
-}
-
-.steps-btn {
-  background-color: #9b59b6;
-  color: white;
-  padding: 6px 12px;
-  font-size: 0.8rem;
-}
-
-.steps-btn:hover {
-  background-color: #8e44ad;
-}
-
-.back-btn,
-.cancel-btn {
-  background-color: #95a5a6;
-  color: white;
-  margin-right: 10px;
-}
-
-.back-btn:hover,
-.cancel-btn:hover {
-  background-color: #7f8c8d;
-}
-
-.move-btn {
-  background-color: #34495e;
-  color: white;
-  padding: 4px 8px;
-  font-size: 0.8rem;
-  margin: 0 2px;
-  min-width: 40px;
-}
-
-.move-btn:disabled {
-  background-color: #bdc3c7;
-  cursor: not-allowed;
-}
-
-.move-btn:hover:not(:disabled) {
-  background-color: #2c3e50;
-}
-
-.header-actions {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-/* الرسائل */
+/* ---------- رسائل الحالة ---------- */
 .success-message,
 .error-message {
-  padding: 15px;
-  border-radius: 6px;
-  margin-bottom: 20px;
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  margin-bottom: 24px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  font-weight: 500;
+  width: 100%;
 }
 
 .success-message {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+  background: var(--success-light);
+  color: var(--success-color);
+  border: 1px solid var(--success-color);
 }
 
 .error-message {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  background: var(--error-light);
+  color: var(--error-color);
+  border: 1px solid var(--error-color);
 }
 
 .success-icon,
 .error-icon {
-  font-size: 1.2rem;
+  font-size: 20px;
 }
 
-/* قائمة الخطوات */
+/* ---------- قائمة الخطوات ---------- */
 .steps-list {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  margin-top: 20px;
+  gap: 20px;
+  margin-top: 24px;
+  width: 100%;
 }
 
 .step-card {
-  background: white;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e0e0e0;
-  transition: transform 0.3s ease;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .step-card:hover {
-  transform: translateX(-5px);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .step-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #f8f9fa;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .step-number {
-  background-color: #3498db;
+  background: var(--accent-color);
   color: white;
-  padding: 6px 12px;
+  padding: 6px 16px;
   border-radius: 20px;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 14px;
 }
 
 .step-actions {
   display: flex;
   gap: 8px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .step-body h3 {
-  color: #2c3e50;
-  margin: 0 0 10px 0;
-  font-size: 1.2rem;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
 }
 
 .step-description {
-  color: #7f8c8d;
+  color: var(--text-secondary);
   line-height: 1.6;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  font-size: 15px;
 }
 
 .step-type {
-  background-color: #e8f8f5;
-  padding: 8px 12px;
-  border-radius: 6px;
+  background: var(--accent-light);
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
   display: inline-block;
-  color: #16a085;
-  font-size: 0.9rem;
-  margin-top: 10px;
+  color: var(--accent-color);
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 8px;
 }
 
 .step-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 15px;
-  padding-top: 10px;
-  border-top: 1px solid #f8f9fa;
-  color: #95a5a6;
-  font-size: 0.85rem;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 13px;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-/* حالة عدم وجود خطوات */
+/* ---------- حالة عدم وجود خطوات ---------- */
 .no-steps {
-  grid-column: 1 / -1;
   text-align: center;
-  padding: 60px 20px;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 80px 30px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
 }
 
-.no-steps-content {
-  max-width: 400px;
-  margin: 0 auto;
+.no-steps-content h3 {
+  font-size: 24px;
+  color: var(--text-primary);
+  margin-bottom: 16px;
 }
 
-.no-steps h3 {
-  color: #2c3e50;
-  margin-bottom: 10px;
-  font-size: 1.5rem;
+.no-steps-content p {
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+  font-size: 16px;
 }
 
-.no-steps p {
-  color: #7f8c8d;
-  margin-bottom: 20px;
-  font-size: 1.1rem;
-}
-
-/* النماذج */
+/* ---------- النماذج (للاستخدام في صفحات create/edit) ---------- */
 .plan-form,
 .step-form {
-  background: white;
-  border-radius: 10px;
-  padding: 30px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-top: 20px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  margin-top: 24px;
+  width: 100%;
 }
 
 .form-section {
-  margin-bottom: 30px;
+  margin-bottom: 32px;
 }
 
 .form-section h3 {
-  color: #2c3e50;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #f8f9fa;
-  font-size: 1.3rem;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 20px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .form-group {
   margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .form-group label {
-  display: block;
-  margin-bottom: 8px;
-  color: #2c3e50;
   font-weight: 600;
-  font-size: 0.95rem;
+  color: var(--text-primary);
+  font-size: 15px;
 }
 
 .form-group input,
 .form-group textarea,
 .form-group select {
+  padding: 14px 16px;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  transition: all var(--transition-fast);
+  background: var(--bg-primary);
+  color: var(--text-primary);
   width: 100%;
-  padding: 12px;
-  border: 2px solid #e0e0e0;
-  border-radius: 6px;
-  font-size: 1rem;
-  transition: border-color 0.3s ease;
-  background-color: #f8f9fa;
+  font-family: inherit;
 }
 
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #3498db;
-  background-color: white;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(12, 74, 110, 0.1);
+}
+
+[data-theme="dark"] .form-group input:focus,
+[data-theme="dark"] .form-group textarea:focus,
+[data-theme="dark"] .form-group select:focus {
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
 }
 
 .form-group textarea {
@@ -345,96 +397,107 @@
 }
 
 .form-group small {
-  display: block;
-  margin-top: 5px;
-  color: #7f8c8d;
-  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-size: 13px;
 }
 
 .form-actions {
   display: flex;
   justify-content: flex-start;
-  gap: 10px;
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 2px solid #f8f9fa;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color);
+  flex-wrap: wrap;
 }
 
-/* التحميل */
+/* ---------- التحميل ---------- */
 .loading {
   text-align: center;
-  padding: 60px 20px;
-  color: #7f8c8d;
-  font-size: 1.2rem;
+  padding: 60px;
+  font-size: 18px;
+  color: var(--accent-color);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
 }
 
-/* التجاوب مع الشاشات المختلفة */
+/* ---------- التجاوب مع الشاشات ---------- */
 @media (max-width: 768px) {
   .haccp-plans-container {
-    padding: 15px;
+    padding: 16px;
   }
-  
+
   .haccp-plans-header {
     flex-direction: column;
-    gap: 15px;
     text-align: center;
+    gap: 16px;
   }
-  
-  .haccp-plans-header h1 {
-    font-size: 1.8rem;
-  }
-  
-  .step-header {
+
+  .header-actions {
     flex-direction: column;
-    gap: 10px;
-    text-align: center;
-  }
-  
-  .step-actions {
-    justify-content: center;
     width: 100%;
   }
-  
+
+  .step-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .step-actions {
+    justify-content: flex-start;
+    width: 100%;
+  }
+
   .step-footer {
     flex-direction: column;
-    gap: 5px;
-    text-align: center;
+    align-items: flex-start;
   }
-  
+
   .form-actions {
     flex-direction: column;
   }
-  
-  .header-actions {
-    flex-direction: column;
-    gap: 10px;
+
+  .move-btn,
+  .edit-btn,
+  .delete-btn,
+  .steps-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 8px;
   }
 }
 
 @media (max-width: 480px) {
+  .haccp-plans-container {
+    padding: 12px;
+  }
+
+  .haccp-plans-header h1 {
+    font-size: 24px;
+  }
+
+  .step-card {
+    padding: 18px;
+  }
+
   .plan-form,
   .step-form {
     padding: 20px;
   }
-  
+}
+
+/* ---------- الطباعة ---------- */
+@media print {
+  .haccp-plans-header,
+  .step-actions,
+  .header-actions {
+    display: none;
+  }
   .step-card {
-    padding: 15px;
-  }
-  
-  .add-step-btn,
-  .save-btn,
-  .edit-btn,
-  .delete-btn,
-  .steps-btn,
-  .back-btn,
-  .cancel-btn,
-  .move-btn {
-    padding: 8px 16px;
-    font-size: 0.85rem;
-  }
-  
-  .move-btn {
-    min-width: 35px;
-    padding: 4px 6px;
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ddd;
   }
 }

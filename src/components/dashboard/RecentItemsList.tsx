@@ -1,4 +1,5 @@
-// src/components/dashboard/RecentItemsList.tsx
+'use client';
+
 interface RecentItem {
   title: string;
   description: string;
@@ -20,15 +21,14 @@ export default function RecentItemsList({
   items,
   onViewAll,
   renderItem,
-  emptyMessage = 'لا توجد عناصر'
+  emptyMessage = 'لا توجد عناصر',
 }: RecentItemsListProps) {
   return (
     <div className="recent-items-card">
       <div className="recent-items-header">
         <h3>{title}</h3>
-        <button onClick={onViewAll} className="view-all-btn">
-          عرض الكل
-          <i className="bi bi-arrow-left"></i>
+        <button onClick={onViewAll} className="view-all-button">
+          عرض الكل ←
         </button>
       </div>
 
@@ -41,21 +41,29 @@ export default function RecentItemsList({
                 key={index}
                 className="recent-item"
                 onClick={renderedItem.onClick}
+                role={renderedItem.onClick ? 'button' : undefined}
+                tabIndex={renderedItem.onClick ? 0 : undefined}
               >
                 <div className="item-content">
                   <h4>{renderedItem.title}</h4>
                   <p>{renderedItem.description}</p>
-                  {renderedItem.meta && <span className="item-meta">{renderedItem.meta}</span>}
+                  {renderedItem.meta && (
+                    <span className="item-meta">{renderedItem.meta}</span>
+                  )}
                 </div>
                 <div className="item-date">
-                  {new Date(renderedItem.date).toLocaleDateString('ar-SA')}
+                  {new Date(renderedItem.date).toLocaleDateString('ar-SA', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                  })}
                 </div>
               </div>
             );
           })
         ) : (
           <div className="empty-state">
-            <i className="bi bi-inbox"></i>
+            <span style={{ fontSize: '48px', opacity: 0.5 }}>📭</span>
             <p>{emptyMessage}</p>
           </div>
         )}

@@ -1,4 +1,3 @@
-// src/app/export/page.tsx
 'use client';
 
 import { useState } from 'react';
@@ -17,7 +16,9 @@ export default function ExportPage() {
   if (status === 'loading') {
     return (
       <div className="export-container">
-        <div className="loading">جاري التحقق من الصلاحية...</div>
+        <div className="loading">
+          <span>جاري التحقق من الصلاحية...</span>
+        </div>
       </div>
     );
   }
@@ -27,56 +28,60 @@ export default function ExportPage() {
     return null;
   }
 
-  // التحقق من صلاحية المستخدم (يفترض أن يكون لديه صلاحية ADMIN)
-  if (session.user.role !== 'ADMIN', 'SUPER_ADMIN') {
+  if (session.user.role !== 'ADMIN' && session.user.role !== 'SUPER_ADMIN') {
     router.push('/dashboard');
     return null;
   }
 
-const handleExport = async () => {
-  try {
-    setIsExporting(true);
-    setError('');
-    setMessage('');
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      setError('');
+      setMessage('');
 
-    const response = await fetch(`/api/export-all?format=${exportFormat}`);
-    if (!response.ok) throw new Error('فشل في تصدير البيانات');
+      const response = await fetch(`/api/export-all?format=${exportFormat}`);
+      if (!response.ok) throw new Error('فشل في تصدير البيانات');
 
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `haccp_export_${new Date().toISOString().split('T')[0]}.${exportFormat === 'pdf' ? 'pdf' : 'xlsx'}`;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `haccp_export_${new Date().toISOString().split('T')[0]}.${exportFormat === 'pdf' ? 'pdf' : 'xlsx'}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
 
-    setMessage('تم تصدير البيانات بنجاح');
-  } catch (err: any) {
-    console.error('Export error:', err);
-    setError(err.message || 'حدث خطأ أثناء تصدير البيانات');
-  } finally {
-    setIsExporting(false);
-  }
-};
+      setMessage('تم تصدير البيانات بنجاح');
+      setTimeout(() => setMessage(''), 5000);
+    } catch (err: any) {
+      console.error('Export error:', err);
+      setError(err.message || 'حدث خطأ أثناء تصدير البيانات');
+      setTimeout(() => setError(''), 5000);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="export-container">
       <div className="export-header">
-        <h1>تصدير بيانات النظام</h1>
-        <p>تصدير جميع بيانات نظام HACCP بصيغة PDF أو Excel</p>
+        <div>
+          <h1>تصدير بيانات النظام</h1>
+          <p>تصدير جميع بيانات نظام HACCP بصيغة PDF أو Excel</p>
+        </div>
       </div>
 
       {message && (
         <div className="success-message">
-          <span className="success-icon">✅</span>
+          <span className="success-icon"><i className="bi bi-check-circle-fill"></i></span>
           {message}
         </div>
       )}
 
       {error && (
         <div className="error-message">
-          <span className="error-icon">⚠️</span>
+          <span className="error-icon"><i className="bi bi-exclamation-triangle-fill"></i></span>
           {error}
         </div>
       )}
@@ -90,10 +95,10 @@ const handleExport = async () => {
               <i className="bi bi-file-earmark-excel"></i>
             )}
           </div>
-          
+
           <h2>تصدير كامل للبيانات</h2>
           <p>سيتم تصدير جميع البيانات المتاحة في النظام بما في ذلك:</p>
-          
+
           <ul className="data-list">
             <li>المستخدمين والصلاحيات</li>
             <li>المنشآت والمرافق</li>
@@ -111,6 +116,7 @@ const handleExport = async () => {
                 type="button"
                 className={`format-option ${exportFormat === 'pdf' ? 'active' : ''}`}
                 onClick={() => setExportFormat('pdf')}
+                aria-pressed={exportFormat === 'pdf'}
               >
                 <i className="bi bi-file-earmark-pdf"></i>
                 PDF
@@ -119,6 +125,7 @@ const handleExport = async () => {
                 type="button"
                 className={`format-option ${exportFormat === 'excel' ? 'active' : ''}`}
                 onClick={() => setExportFormat('excel')}
+                aria-pressed={exportFormat === 'excel'}
               >
                 <i className="bi bi-file-earmark-excel"></i>
                 Excel
@@ -165,7 +172,7 @@ const handleExport = async () => {
               <h4>بيانات كاملة</h4>
               <p>يشمل التصدير جميع البيانات المخزنة في النظام بدون استثناء</p>
             </div>
-            
+
             <div className="info-card">
               <div className="info-icon">
                 <i className="bi bi-shield-lock"></i>
@@ -173,7 +180,7 @@ const handleExport = async () => {
               <h4>آمن ومحمي</h4>
               <p>البيانات المصدرة مشفرة ومحمية بكلمة مرور حسب الحاجة</p>
             </div>
-            
+
             <div className="info-card">
               <div className="info-icon">
                 <i className="bi bi-clock-history"></i>
@@ -181,7 +188,7 @@ const handleExport = async () => {
               <h4>نسخ احتياطية</h4>
               <p>يمكن استخدام الملف المصدر كنسخة احتياطية للبيانات</p>
             </div>
-            
+
             <div className="info-card">
               <div className="info-icon">
                 <i className="bi bi-graph-up"></i>

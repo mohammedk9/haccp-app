@@ -1,223 +1,256 @@
-/* src/app/haccp-plans/haccp-plans.css */
+/* =====================================================
+   خطط HACCP - متوافقة مع نظام HACCP
+   أبيض وأسود مع كحلي غامق
+   ===================================================== */
 
-.haccp-plans-container {
+/* ---------- الحاوية العامة ---------- */
+.haccp-plans-container,
+.steps-container {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background var(--transition-normal), color var(--transition-normal);
+  padding: 24px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  direction: rtl;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  direction: rtl;
 }
 
-/* التصميم العام */
-.haccp-plans-header {
+/* ---------- رأس الصفحة ---------- */
+.haccp-plans-header,
+.steps-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 2px solid #e0e0e0;
+  align-items: flex-start;
+  margin-bottom: 32px;
+  gap: 24px;
+  flex-wrap: wrap;
+  background: var(--bg-secondary);
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  width: 100%;
 }
 
-.haccp-plans-header h1 {
-  color: #2c3e50;
-  font-size: 2.2rem;
-  margin: 0;
+.haccp-plans-header h1,
+.steps-title {
+  font-size: 32px;
   font-weight: 700;
+  margin: 0 0 8px 0;
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-/* الأزرار */
+.haccp-plans-header p,
+.steps-header p {
+  color: var(--text-secondary);
+  margin: 0;
+  font-size: 16px;
+}
+
+/* ---------- الروابط والأزرار العامة ---------- */
 .add-plan-btn,
 .save-btn,
 .edit-btn,
 .delete-btn,
 .steps-btn,
-.cancel-btn {
+.cancel-btn,
+.back-link {
   padding: 12px 24px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   text-decoration: none;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  display: inline-block;
-  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: var(--shadow-sm);
+  white-space: nowrap;
 }
 
 .add-plan-btn {
-  background-color: #27ae60;
+  background: var(--accent-color);
   color: white;
 }
 
 .add-plan-btn:hover {
-  background-color: #219a52;
+  background: var(--accent-hover);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .save-btn {
-  background-color: #3498db;
+  background: var(--accent-color);
   color: white;
   min-width: 120px;
 }
 
 .save-btn:hover {
-  background-color: #2980b9;
+  background: var(--accent-hover);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .save-btn:disabled {
-  background-color: #bdc3c7;
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
 .edit-btn {
-  background-color: #f39c12;
+  background: #f59e0b;
   color: white;
   padding: 8px 16px;
-  font-size: 0.9rem;
+  font-size: 14px;
 }
 
 .edit-btn:hover {
-  background-color: #e67e22;
+  background: #d97706;
+  transform: translateY(-1px);
 }
 
-.delete-btn {
-  background-color: #e74c3c;
+.delete-btn,
+.delete-step-btn {
+  background: #dc2626;
   color: white;
   padding: 8px 16px;
-  font-size: 0.9rem;
-  border: none;
-  border-radius: 6px;
+  font-size: 14px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
+  border: none;
+  transition: all var(--transition-fast);
 }
 
-.delete-btn:hover {
-  background-color: #c0392b;
+.delete-btn:hover,
+.delete-step-btn:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
 }
 
 .steps-btn {
-  background-color: #9b59b6;
+  background: #8b5cf6;
   color: white;
   padding: 8px 16px;
-  font-size: 0.9rem;
+  font-size: 14px;
   text-decoration: none;
-  border-radius: 6px;
 }
 
 .steps-btn:hover {
-  background-color: #8e44ad;
+  background: #7c3aed;
+  transform: translateY(-1px);
 }
 
 .cancel-btn {
-  background-color: #95a5a6;
-  color: white;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 2px solid var(--border-color);
   text-decoration: none;
-  padding: 12px 24px;
-  border-radius: 8px;
 }
 
 .cancel-btn:hover {
-  background-color: #7f8c8d;
+  background: var(--border-color);
+  color: var(--text-primary);
+  transform: translateY(-2px);
 }
 
-/* الرسائل */
-.success-message,
-.error-message {
-  padding: 15px 20px;
-  border-radius: 8px;
-  margin-bottom: 25px;
-  display: flex;
+.back-link {
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
-  font-size: 1rem;
+  gap: 8px;
+  color: var(--accent-color);
+  background: transparent;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 0;
+  margin-bottom: 16px;
+  box-shadow: none;
+  transition: color var(--transition-fast);
 }
 
-.success-message {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+.back-link:hover {
+  color: var(--accent-hover);
 }
 
-.error-message {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
-.success-icon,
-.error-icon {
-  font-size: 1.3rem;
-}
-
-/* شبكة الخطط */
+/* ---------- شبكة الخطط ---------- */
 .plans-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-  gap: 25px;
-  margin-top: 25px;
+  gap: 24px;
+  margin-top: 24px;
+  width: 100%;
 }
 
 .plan-card {
-  background: white;
-  border-radius: 12px;
-  padding: 25px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--shadow-sm);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+  overflow: hidden;
 }
 
 .plan-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
 }
 
 .plan-card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20px;
-  gap: 15px;
+  gap: 16px;
 }
 
 .plan-card-header h3 {
-  color: #2c3e50;
-  font-size: 1.4rem;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
   margin: 0;
   flex: 1;
-  line-height: 1.4;
 }
 
 .plan-actions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
-.plan-card-body {
-  margin-bottom: 20px;
-}
-
 .plan-description {
-  color: #7f8c8d;
+  color: var(--text-secondary);
   line-height: 1.6;
-  margin-bottom: 20px;
-  font-size: 1rem;
+  font-size: 15px;
+  margin: 0;
 }
 
 .plan-meta {
-  background-color: #f8f9fa;
+  background: var(--bg-primary);
   padding: 18px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  border: 1px solid #e9ecef;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
 }
 
 .meta-item {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   align-items: center;
+  gap: 12px;
 }
 
 .meta-item:last-child {
@@ -226,26 +259,26 @@
 
 .meta-label {
   font-weight: 600;
-  color: #2c3e50;
-  font-size: 0.95rem;
+  color: var(--text-primary);
+  font-size: 14px;
 }
 
 .meta-value {
-  color: #7f8c8d;
-  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-size: 14px;
 }
 
 .plan-steps-preview {
-  background-color: #e8f4fc;
+  background: var(--accent-light);
   padding: 18px;
-  border-radius: 8px;
-  border-right: 4px solid #3498db;
+  border-radius: var(--radius-md);
+  border-right: 4px solid var(--accent-color);
 }
 
 .plan-steps-preview h4 {
-  color: #2c3e50;
-  margin: 0 0 15px 0;
-  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin: 0 0 12px 0;
+  font-size: 16px;
   font-weight: 600;
 }
 
@@ -253,96 +286,95 @@
   margin: 0;
   padding: 0;
   list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .plan-steps-preview li {
-  padding: 8px 0;
-  color: #34495e;
-  border-bottom: 1px solid #d6eaf8;
-  font-size: 0.95rem;
+  padding: 6px 0;
+  color: var(--text-primary);
+  font-size: 14px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .plan-steps-preview li:last-child {
   border-bottom: none;
-  color: #7f8c8d;
+  color: var(--text-secondary);
   font-style: italic;
 }
 
-/* حالة عدم وجود خطط */
+/* ---------- حالة عدم وجود خطط ---------- */
 .no-plans {
   grid-column: 1 / -1;
   text-align: center;
   padding: 80px 30px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e0e0e0;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
 }
 
-.no-plans-content {
-  max-width: 450px;
-  margin: 0 auto;
+.no-plans-content h3 {
+  font-size: 24px;
+  color: var(--text-primary);
+  margin-bottom: 16px;
 }
 
-.no-plans h3 {
-  color: #2c3e50;
-  margin-bottom: 15px;
-  font-size: 1.8rem;
-  font-weight: 600;
+.no-plans-content p {
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+  font-size: 16px;
 }
 
-.no-plans p {
-  color: #7f8c8d;
-  margin-bottom: 30px;
-  font-size: 1.1rem;
-  line-height: 1.6;
-}
-
-/* النماذج */
+/* ---------- النماذج ---------- */
 .plan-form {
-  background: white;
-  border-radius: 12px;
-  padding: 35px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-  margin-top: 25px;
-  border: 1px solid #e0e0e0;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  margin-top: 24px;
+  width: 100%;
 }
 
 .form-section {
-  margin-bottom: 35px;
+  margin-bottom: 32px;
 }
 
 .form-section h3 {
-  color: #2c3e50;
-  margin-bottom: 25px;
-  padding-bottom: 15px;
-  border-bottom: 2px solid #f8f9fa;
-  font-size: 1.4rem;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 20px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .form-group {
-  margin-bottom: 25px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .form-group label {
-  display: block;
-  margin-bottom: 10px;
-  color: #2c3e50;
   font-weight: 600;
-  font-size: 1rem;
+  color: var(--text-primary);
+  font-size: 15px;
 }
 
 .form-group input,
 .form-group textarea,
 .form-group select {
+  padding: 14px 16px;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  transition: all var(--transition-fast);
+  background: var(--bg-primary);
+  color: var(--text-primary);
   width: 100%;
-  padding: 14px;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  background-color: #f8f9fa;
   font-family: inherit;
 }
 
@@ -350,202 +382,61 @@
 .form-group textarea:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #3498db;
-  background-color: white;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(12, 74, 110, 0.1);
+}
+
+[data-theme="dark"] .form-group input:focus,
+[data-theme="dark"] .form-group textarea:focus,
+[data-theme="dark"] .form-group select:focus {
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
 }
 
 .form-group textarea {
   resize: vertical;
   min-height: 120px;
-  line-height: 1.5;
-}
-
-.form-group select {
-  cursor: pointer;
 }
 
 .form-actions {
   display: flex;
   justify-content: flex-start;
-  gap: 15px;
-  margin-top: 35px;
-  padding-top: 25px;
-  border-top: 2px solid #f8f9fa;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color);
 }
 
-/* التحميل */
-.loading {
-  text-align: center;
-  padding: 80px 30px;
-  color: #7f8c8d;
-  font-size: 1.3rem;
-  font-weight: 500;
-}
-
-/* التجاوب مع الشاشات المختلفة */
-@media (max-width: 768px) {
-  .haccp-plans-container {
-    padding: 15px;
-  }
-  
-  .haccp-plans-header {
-    flex-direction: column;
-    gap: 20px;
-    text-align: center;
-  }
-  
-  .haccp-plans-header h1 {
-    font-size: 1.8rem;
-  }
-  
-  .plans-grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-  
-  .plan-card {
-    padding: 20px;
-  }
-  
-  .plan-card-header {
-    flex-direction: column;
-    gap: 15px;
-    text-align: center;
-  }
-  
-  .plan-actions {
-    justify-content: center;
-    width: 100%;
-  }
-  
-  .meta-item {
-    flex-direction: column;
-    gap: 8px;
-    align-items: flex-start;
-  }
-  
-  .plan-form {
-    padding: 25px;
-  }
-  
-  .form-actions {
-    flex-direction: column;
-    gap: 12px;
-  }
-  
-  .add-plan-btn,
-  .save-btn,
-  .cancel-btn {
-    width: 100%;
-    text-align: center;
-  }
-}
-
-@media (max-width: 480px) {
-  .haccp-plans-header h1 {
-    font-size: 1.6rem;
-  }
-  
-  .plan-card {
-    padding: 18px;
-  }
-  
-  .plan-form {
-    padding: 20px;
-  }
-  
-  .form-section h3 {
-    font-size: 1.2rem;
-  }
-  
-  .form-group input,
-  .form-group textarea,
-  .form-group select {
-    padding: 12px;
-  }
-  
-  .success-message,
-  .error-message {
-    padding: 12px 16px;
-    font-size: 0.95rem;
-  }
-  
-  .no-plans {
-    padding: 50px 20px;
-  }
-  
-  .no-plans h3 {
-    font-size: 1.5rem;
-  }
-  
-  .no-plans p {
-    font-size: 1rem;
-  }
-  /* src/app/haccp-plans/[id]/steps/steps.css */
-
-.steps-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  direction: rtl;
-}
-
-/* رأس الصفحة */
-.steps-header {
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 2px solid #e0e0e0;
-}
-
-.back-link {
-  display: inline-flex;
+/* ---------- رسائل الحالة ---------- */
+.success-message,
+.error-message {
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  margin-bottom: 24px;
+  display: flex;
   align-items: center;
-  gap: 8px;
-  color: #3498db;
-  text-decoration: none;
-  font-size: 1rem;
+  gap: 12px;
   font-weight: 500;
-  margin-bottom: 15px;
-  transition: color 0.3s ease;
+  width: 100%;
 }
 
-.back-link:hover {
-  color: #2980b9;
-  transform: translateX(-3px);
+.success-message {
+  background: var(--success-light);
+  color: var(--success-color);
+  border: 1px solid var(--success-color);
 }
 
-.steps-title {
-  color: #2c3e50;
-  font-size: 2.2rem;
-  margin: 0 0 10px 0;
-  font-weight: 700;
+.error-message {
+  background: var(--error-light);
+  color: var(--error-color);
+  border: 1px solid var(--error-color);
 }
 
-.plan-id {
-  color: #7f8c8d;
-  font-size: 1.1rem;
-  margin: 0;
+.success-icon,
+.error-icon {
+  font-size: 20px;
 }
 
-/* نموذج إضافة خطوة */
-.add-step-form {
-  background: white;
-  border-radius: 12px;
-  padding: 30px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-  margin-bottom: 30px;
-  border: 1px solid #e0e0e0;
-}
-
-.add-step-title {
-  color: #2c3e50;
-  font-size: 1.6rem;
-  margin: 0 0 25px 0;
-  font-weight: 600;
-}
-
+/* ---------- صفحة الخطوات ---------- */
 .steps-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -562,155 +453,43 @@
   }
 }
 
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 8px;
-  color: #2c3e50;
-  font-weight: 600;
-  font-size: 1rem;
-}
-
-.form-group input,
-.form-group textarea {
-  width: 100%;
-  padding: 12px;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  background-color: #f8f9fa;
-  font-family: inherit;
-}
-
-.form-group input:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: #3498db;
-  background-color: white;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-}
-
-.form-group textarea {
-  resize: vertical;
-  min-height: 100px;
-  line-height: 1.5;
-}
-
-/* checkbox التخصيص */
-.checkbox-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  direction: rtl;
-}
-
-.checkbox-group input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  accent-color: #e74c3c;
-}
-
-.checkbox-label {
-  font-weight: 600;
-  color: #2c3e50;
-  cursor: pointer;
-}
-
-.checkbox-helper {
-  font-size: 0.85rem;
-  color: #7f8c8d;
-  margin-top: 5px;
-  line-height: 1.4;
-}
-
-/* زر الإضافة */
-.add-step-btn {
-  background-color: #27ae60;
-  color: white;
-  padding: 12px 30px;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 10px;
-}
-
-.add-step-btn:hover {
-  background-color: #219a52;
-  transform: translateY(-2px);
-}
-
-.add-step-btn:disabled {
-  background-color: #bdc3c7;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* قائمة الخطوات */
+.add-step-form,
 .steps-list {
-  background: white;
-  border-radius: 12px;
-  padding: 30px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e0e0e0;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  margin-bottom: 24px;
 }
 
+.add-step-title,
 .steps-list-title {
-  color: #2c3e50;
-  font-size: 1.6rem;
-  margin: 0 0 25px 0;
-  font-weight: 600;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 20px 0;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .steps-count {
-  background: #3498db;
+  background: var(--accent-color);
   color: white;
   padding: 4px 12px;
   border-radius: 20px;
-  font-size: 0.9rem;
+  font-size: 14px;
   font-weight: 500;
 }
 
-/* حالة عدم وجود خطوات */
-.no-steps {
-  text-align: center;
-  padding: 60px 30px;
-  color: #7f8c8d;
-}
-
-.no-steps-icon {
-  font-size: 3rem;
-  margin-bottom: 20px;
-  opacity: 0.5;
-}
-
-.no-steps h3 {
-  color: #2c3e50;
-  margin-bottom: 15px;
-  font-size: 1.5rem;
-}
-
-.no-steps p {
-  font-size: 1.1rem;
-  line-height: 1.6;
-}
-
-/* بطاقة الخطوة */
+/* مكونات الخطوة */
 .step-item {
-  border-radius: 8px;
-  padding: 25px;
+  border-radius: var(--radius-md);
+  padding: 24px;
   margin-bottom: 20px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
   border-right: 4px solid;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .step-item:last-child {
@@ -718,28 +497,28 @@
 }
 
 .step-item-critical {
-  border-right-color: #e74c3c;
-  background: linear-gradient(135deg, #fef2f2 0%, #fce7e7 100%);
-  border: 1px solid #fadbd8;
+  border-right-color: #dc2626;
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.08), var(--bg-secondary));
+  border: 1px solid rgba(220, 38, 38, 0.2);
 }
 
 .step-item-normal {
-  border-right-color: #3498db;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e8f4fc 100%);
-  border: 1px solid #d6eaf8;
+  border-right-color: var(--accent-color);
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.05), var(--bg-secondary));
+  border: 1px solid var(--border-color);
 }
 
 .step-item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
 }
 
 .step-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 15px;
-  gap: 15px;
+  margin-bottom: 16px;
+  gap: 16px;
 }
 
 .step-info {
@@ -750,44 +529,46 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .step-title {
-  color: #2c3e50;
-  font-size: 1.3rem;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .critical-badge {
-  background: #e74c3c;
+  background: #dc2626;
   color: white;
   padding: 4px 12px;
   border-radius: 20px;
-  font-size: 0.8rem;
+  font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
 }
 
 .step-description {
-  color: #34495e;
+  color: var(--text-primary);
   line-height: 1.6;
-  margin-bottom: 20px;
-  font-size: 1.05rem;
+  margin-bottom: 16px;
+  font-size: 15px;
 }
 
 .step-details {
-  background: rgba(255, 255, 255, 0.7);
-  padding: 20px;
-  border-radius: 6px;
-  margin-bottom: 15px;
+  background: var(--bg-primary);
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+  border: 1px solid var(--border-color);
 }
 
 .step-detail {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   display: flex;
   gap: 10px;
+  font-size: 14px;
 }
 
 .step-detail:last-child {
@@ -796,80 +577,107 @@
 
 .detail-label {
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-primary);
   min-width: 120px;
-  font-size: 0.95rem;
 }
 
 .detail-value {
-  color: #34495e;
+  color: var(--text-secondary);
   flex: 1;
-  line-height: 1.5;
 }
 
 .step-actions {
   display: flex;
   justify-content: flex-end;
+}
+
+/* ---------- Checkbox مخصص ---------- */
+.checkbox-group {
+  display: flex;
+  align-items: center;
   gap: 10px;
 }
 
-.delete-step-btn {
-  background-color: #e74c3c;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
+.checkbox-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #dc2626;
+}
+
+.checkbox-label {
+  font-weight: 600;
+  color: var(--text-primary);
   cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 6px;
 }
 
-.delete-step-btn:hover {
-  background-color: #c0392b;
-  transform: translateY(-1px);
+.checkbox-helper {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 4px;
 }
 
-/* التحميل */
+/* ---------- حالة التحميل ---------- */
 .loading {
   text-align: center;
-  padding: 40px 20px;
-  color: #7f8c8d;
-  font-size: 1.1rem;
+  padding: 60px;
+  font-size: 18px;
+  color: var(--accent-color);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
 }
 
-.loading-spinner {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #3498db;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-right: 10px;
+/* ---------- التجاوب ---------- */
+@media (max-width: 1024px) {
+  .plans-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* التجاوب مع الشاشات المختلفة */
 @media (max-width: 768px) {
+  .haccp-plans-container,
   .steps-container {
-    padding: 15px;
+    padding: 16px;
   }
   
-  .steps-title {
-    font-size: 1.8rem;
+  .haccp-plans-header,
+  .steps-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
   }
   
-  .add-step-form,
-  .steps-list {
-    padding: 20px;
+  .plan-card-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .plan-actions {
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .meta-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .plan-form {
+    padding: 24px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .add-plan-btn,
+  .save-btn,
+  .cancel-btn {
+    width: 100%;
+    justify-content: center;
   }
   
   .steps-grid {
@@ -878,90 +686,55 @@
   
   .step-header {
     flex-direction: column;
-    gap: 15px;
   }
   
   .step-actions {
     justify-content: flex-start;
-    width: 100%;
-  }
-  
-  .delete-step-btn {
-    width: 100%;
-    justify-content: center;
-  }
-  
-  .step-detail {
-    flex-direction: column;
-    gap: 5px;
-  }
-  
-  .detail-label {
-    min-width: auto;
   }
 }
 
 @media (max-width: 480px) {
+  .haccp-plans-container,
+  .steps-container {
+    padding: 12px;
+  }
+  
+  .haccp-plans-header h1,
   .steps-title {
-    font-size: 1.6rem;
+    font-size: 24px;
+  }
+  
+  .plan-card {
+    padding: 20px;
   }
   
   .add-step-form,
   .steps-list {
-    padding: 18px;
-  }
-  
-  .add-step-title,
-  .steps-list-title {
-    font-size: 1.3rem;
-  }
-  
-  .form-group input,
-  .form-group textarea {
-    padding: 10px;
-  }
-  
-  .step-item {
     padding: 20px;
   }
   
   .step-title {
-    font-size: 1.1rem;
+    font-size: 18px;
   }
   
-  .step-description {
-    font-size: 1rem;
+  .detail-label {
+    min-width: 100px;
   }
 }
 
-/* تأثيرات الرسوم المتحركة */
-.fade-in {
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+/* ---------- تحسينات الطباعة ---------- */
+@media print {
+  .haccp-plans-header,
+  .steps-header,
+  .plan-actions,
+  .step-actions {
+    display: none;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  
+  .plan-card,
+  .step-item {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ddd;
   }
-}
-
-.slide-in {
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
 }

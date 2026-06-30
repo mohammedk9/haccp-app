@@ -1,4 +1,3 @@
-// src/app/haccp-plans/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -16,12 +15,8 @@ interface HaccpPlan {
   facilityId?: string;
   userId: string;
   steps: HaccpStep[];
-  facility?: {
-    name: string;
-  };
-  user: {
-    name: string;
-  };
+  facility?: { name: string };
+  user: { name: string };
 }
 
 interface HaccpStep {
@@ -41,12 +36,10 @@ export default function HaccpPlansPage() {
 
   useEffect(() => {
     if (status === 'loading') return;
-    
     if (!session) {
       router.push('/auth-pages/signin');
       return;
     }
-
     fetchPlans();
   }, [session, status, router]);
 
@@ -54,17 +47,11 @@ export default function HaccpPlansPage() {
     try {
       setIsLoading(true);
       setError('');
-
       const response = await fetch('/api/haccp-plans');
-      
-      if (!response.ok) {
-        throw new Error('فشل في تحميل بيانات الخطط');
-      }
-
+      if (!response.ok) throw new Error('فشل في تحميل بيانات الخطط');
       const data: HaccpPlan[] = await response.json();
       setPlans(data);
     } catch (error: any) {
-      console.error('Error fetching plans:', error);
       setError(error.message || 'حدث خطأ أثناء تحميل البيانات');
     } finally {
       setIsLoading(false);
@@ -72,23 +59,13 @@ export default function HaccpPlansPage() {
   };
 
   const handleDelete = async (planId: string, planTitle: string) => {
-    if (!confirm(`هل أنت متأكد من حذف الخطة "${planTitle}"؟`)) {
-      return;
-    }
-
+    if (!confirm(`هل أنت متأكد من حذف الخطة "${planTitle}"؟`)) return;
     try {
-      const response = await fetch(`/api/haccp-plans/${planId}`, {
-        method: 'DELETE'
-      });
-
-      if (!response.ok) {
-        throw new Error('فشل في حذف الخطة');
-      }
-
+      const response = await fetch(`/api/haccp-plans/${planId}`, { method: 'DELETE' });
+      if (!response.ok) throw new Error('فشل في حذف الخطة');
       setMessage('تم حذف الخطة بنجاح');
-      fetchPlans(); // إعادة تحميل البيانات
+      fetchPlans();
     } catch (error: any) {
-      console.error('Error deleting plan:', error);
       setError(error.message || 'حدث خطأ أثناء حذف الخطة');
     }
   };
@@ -124,7 +101,6 @@ export default function HaccpPlansPage() {
         </div>
       )}
 
-      {/* قائمة الخطط */}
       <div className="plans-grid">
         {plans.length > 0 ? (
           plans.map((plan) => (
@@ -147,46 +123,42 @@ export default function HaccpPlansPage() {
                 </div>
               </div>
 
-              <div className="plan-card-body">
-                <p className="plan-description">
-                  {plan.description || 'لا يوجد وصف'}
-                </p>
+              <p className="plan-description">{plan.description || 'لا يوجد وصف'}</p>
 
-                <div className="plan-meta">
-                  <div className="meta-item">
-                    <span className="meta-label">تم الإنشاء بواسطة:</span>
-                    <span className="meta-value">{plan.user.name}</span>
-                  </div>
-                  <div className="meta-item">
-                    <span className="meta-label">تاريخ الإنشاء:</span>
-                    <span className="meta-value">
-                      {new Date(plan.createdAt).toLocaleDateString('ar-SA')}
-                    </span>
-                  </div>
-                  {plan.facility && (
-                    <div className="meta-item">
-                      <span className="meta-label">المنشأة:</span>
-                      <span className="meta-value">{plan.facility.name}</span>
-                    </div>
-                  )}
+              <div className="plan-meta">
+                <div className="meta-item">
+                  <span className="meta-label">تم الإنشاء بواسطة:</span>
+                  <span className="meta-value">{plan.user.name}</span>
                 </div>
-
-                {plan.steps.length > 0 && (
-                  <div className="plan-steps-preview">
-                    <h4>خطوات الخطة:</h4>
-                    <ul>
-                      {plan.steps.slice(0, 3).map((step) => (
-                        <li key={step.id}>
-                          {step.stepNumber}. {step.title}
-                        </li>
-                      ))}
-                      {plan.steps.length > 3 && (
-                        <li>... +{plan.steps.length - 3} خطوات أخرى</li>
-                      )}
-                    </ul>
+                <div className="meta-item">
+                  <span className="meta-label">تاريخ الإنشاء:</span>
+                  <span className="meta-value">
+                    {new Date(plan.createdAt).toLocaleDateString('ar-SA')}
+                  </span>
+                </div>
+                {plan.facility && (
+                  <div className="meta-item">
+                    <span className="meta-label">المنشأة:</span>
+                    <span className="meta-value">{plan.facility.name}</span>
                   </div>
                 )}
               </div>
+
+              {plan.steps.length > 0 && (
+                <div className="plan-steps-preview">
+                  <h4>خطوات الخطة:</h4>
+                  <ul>
+                    {plan.steps.slice(0, 3).map((step) => (
+                      <li key={step.id}>
+                        {step.stepNumber}. {step.title}
+                      </li>
+                    ))}
+                    {plan.steps.length > 3 && (
+                      <li>... +{plan.steps.length - 3} خطوات أخرى</li>
+                    )}
+                  </ul>
+                </div>
+              )}
             </div>
           ))
         ) : (

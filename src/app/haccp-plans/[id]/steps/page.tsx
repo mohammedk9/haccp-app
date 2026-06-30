@@ -29,15 +29,12 @@ export default function HaccpStepsPage() {
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  // تحميل الخطوات من localStorage (أو API في حالة حقيقية)
+  // تحميل الخطوات من localStorage (أو API)
   useEffect(() => {
     const savedSteps = localStorage.getItem(`haccp-steps-${planId}`);
-    if (savedSteps) {
-      setSteps(JSON.parse(savedSteps));
-    }
+    if (savedSteps) setSteps(JSON.parse(savedSteps));
   }, [planId]);
 
-  // حفظ الخطوات في localStorage
   const saveSteps = (updatedSteps: HaccpStep[]) => {
     localStorage.setItem(`haccp-steps-${planId}`, JSON.stringify(updatedSteps));
     setSteps(updatedSteps);
@@ -48,18 +45,10 @@ export default function HaccpStepsPage() {
       alert('يرجى إدخال وصف الخطوة');
       return;
     }
-
     setIsLoading(true);
-    
-    const step: HaccpStep = {
-      id: Date.now().toString(),
-      ...newStep
-    };
-
+    const step: HaccpStep = { id: Date.now().toString(), ...newStep };
     const updatedSteps = [...steps, step];
     saveSteps(updatedSteps);
-
-    // Reset form
     setNewStep({
       description: '',
       isCritical: false,
@@ -67,7 +56,6 @@ export default function HaccpStepsPage() {
       monitoringProcedure: '',
       correctiveActions: ''
     });
-
     setIsLoading(false);
   };
 
@@ -79,183 +67,151 @@ export default function HaccpStepsPage() {
   };
 
   const handleInputChange = (field: keyof Omit<HaccpStep, 'id'>, value: string | boolean) => {
-    setNewStep(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setNewStep(prev => ({ ...prev, [field]: value }));
   };
 
   return (
-    <div className="container mx-auto p-6">
-      {/* رأس الصفحة */}
-      <div className="mb-6">
-        <Link 
-          href={`/haccp-plans/${planId}`}
-          className="text-blue-600 hover:text-blue-800 mb-4 inline-block"
-        >
-          ← العودة إلى خطة HACCP
-        </Link>
-        <h1 className="text-3xl font-bold text-gray-900">إدارة خطوات العملية</h1>
-        <p className="text-gray-600 mt-2">خطة HACCP: {planId}</p>
+    <div className="steps-container">
+      <div className="steps-header">
+        <div>
+          <Link href={`/haccp-plans/${planId}`} className="back-link">
+            ← العودة إلى خطة HACCP
+          </Link>
+          <h1 className="steps-title">إدارة خطوات العملية</h1>
+          <p>خطة HACCP: {planId}</p>
+        </div>
       </div>
 
       {/* نموذج إضافة خطوة جديدة */}
-      <div className="bg-white shadow-md rounded-lg p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">إضافة خطوة جديدة</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* وصف الخطوة */}
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              وصف الخطوة *
-            </label>
+      <div className="add-step-form">
+        <h2 className="add-step-title">إضافة خطوة جديدة</h2>
+        <div className="steps-grid">
+          <div className="full-width form-group">
+            <label>وصف الخطوة *</label>
             <textarea
               value={newStep.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               rows={3}
               placeholder="أدخل وصفاً واضحاً للخطوة..."
             />
           </div>
 
-          {/* نوع الخطوة */}
-          <div>
-            <label className="flex items-center space-x-2 space-x-reverse">
+          <div className="form-group">
+            <div className="checkbox-group">
               <input
                 type="checkbox"
                 checked={newStep.isCritical}
                 onChange={(e) => handleInputChange('isCritical', e.target.checked)}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                id="criticalCheck"
               />
-              <span className="text-sm font-medium text-gray-700">
-                خطوة حرجة (CCP)
-              </span>
-            </label>
-            <p className="text-xs text-gray-500 mt-1">
-              حدد إذا كانت هذه خطوة تحكم حرجة (Critical Control Point)
-            </p>
+              <label htmlFor="criticalCheck" className="checkbox-label">خطوة حرجة (CCP)</label>
+            </div>
+            <p className="checkbox-helper">حدد إذا كانت هذه خطوة تحكم حرجة</p>
           </div>
 
-          {/* الحد الحرج (يظهر فقط إذا كانت خطوة حرجة) */}
           {newStep.isCritical && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                الحد الحرج
-              </label>
+            <div className="form-group">
+              <label>الحد الحرج</label>
               <input
                 type="text"
                 value={newStep.criticalLimit}
                 onChange={(e) => handleInputChange('criticalLimit', e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="مثال: درجة حرارة ≥ 75°C"
               />
             </div>
           )}
 
-          {/* إجراءات المراقبة */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              إجراءات المراقبة
-            </label>
+          <div className="form-group">
+            <label>إجراءات المراقبة</label>
             <textarea
               value={newStep.monitoringProcedure}
               onChange={(e) => handleInputChange('monitoringProcedure', e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               rows={2}
               placeholder="كيف سيتم مراقبة هذه الخطوة..."
             />
           </div>
 
-          {/* الإجراءات التصحيحية */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              الإجراءات التصحيحية
-            </label>
+          <div className="form-group">
+            <label>الإجراءات التصحيحية</label>
             <textarea
               value={newStep.correctiveActions}
               onChange={(e) => handleInputChange('correctiveActions', e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               rows={2}
-              placeholder="ما الإجراءات التي ستتخذ في حالة الخروج عن السيطرة..."
+              placeholder="ما الإجراءات في حالة الخروج عن السيطرة..."
             />
           </div>
         </div>
 
-        {/* زر الإضافة */}
-        <div className="mt-6">
+        <div style={{ marginTop: '24px' }}>
           <button
             onClick={handleAddStep}
             disabled={isLoading || !newStep.description.trim()}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition duration-200"
+            className="add-plan-btn"
           >
             {isLoading ? 'جاري الإضافة...' : 'إضافة الخطوة'}
           </button>
         </div>
       </div>
 
-      {/* قائمة الخطوات الموجودة */}
-      <div className="bg-white shadow-md rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4">الخطوات المضافة ({steps.length})</h2>
-        
+      {/* قائمة الخطوات */}
+      <div className="steps-list">
+        <h2 className="steps-list-title">
+          الخطوات المضافة
+          <span className="steps-count">{steps.length}</span>
+        </h2>
+
         {steps.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">لم تتم إضافة أي خطوات بعد</p>
+          <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '40px' }}>
+            لم تتم إضافة أي خطوات بعد
+          </p>
         ) : (
-          <div className="space-y-4">
-            {steps.map((step, index) => (
-              <div
-                key={step.id}
-                className={`border-l-4 p-4 rounded-r-lg ${
-                  step.isCritical 
-                    ? 'border-red-500 bg-red-50' 
-                    : 'border-gray-300 bg-gray-50'
-                }`}
-              >
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 space-x-reverse mb-2">
-                      <span className="font-semibold text-lg">الخطوة {index + 1}</span>
-                      {step.isCritical && (
-                        <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
-                          خطوة حرجة (CCP)
-                        </span>
-                      )}
-                    </div>
-                    
-                    <p className="text-gray-700 mb-3">{step.description}</p>
-                    
-                    {step.isCritical && step.criticalLimit && (
-                      <div className="mb-2">
-                        <span className="font-medium text-gray-600">الحد الحرج: </span>
-                        <span className="text-gray-800">{step.criticalLimit}</span>
-                      </div>
-                    )}
-                    
-                    {step.monitoringProcedure && (
-                      <div className="mb-2">
-                        <span className="font-medium text-gray-600">المراقبة: </span>
-                        <span className="text-gray-800">{step.monitoringProcedure}</span>
-                      </div>
-                    )}
-                    
-                    {step.correctiveActions && (
-                      <div>
-                        <span className="font-medium text-gray-600">الإجراءات التصحيحية: </span>
-                        <span className="text-gray-800">{step.correctiveActions}</span>
-                      </div>
-                    )}
+          steps.map((step, index) => (
+            <div
+              key={step.id}
+              className={`step-item ${step.isCritical ? 'step-item-critical' : 'step-item-normal'}`}
+            >
+              <div className="step-header">
+                <div className="step-info">
+                  <div className="step-number">
+                    <span className="step-title">الخطوة {index + 1}</span>
+                    {step.isCritical && <span className="critical-badge">حرجة</span>}
                   </div>
-                  
+                  <p className="step-description">{step.description}</p>
+                </div>
+                <div className="step-actions">
                   <button
                     onClick={() => handleDeleteStep(step.id)}
-                    className="text-red-600 hover:text-red-800 p-2 transition duration-200"
-                    title="حذف الخطوة"
+                    className="delete-step-btn"
                   >
-                    🗑️
+                    🗑️ حذف
                   </button>
                 </div>
               </div>
-            ))}
-          </div>
+
+              {(step.criticalLimit || step.monitoringProcedure || step.correctiveActions) && (
+                <div className="step-details">
+                  {step.isCritical && step.criticalLimit && (
+                    <div className="step-detail">
+                      <span className="detail-label">الحد الحرج:</span>
+                      <span className="detail-value">{step.criticalLimit}</span>
+                    </div>
+                  )}
+                  {step.monitoringProcedure && (
+                    <div className="step-detail">
+                      <span className="detail-label">المراقبة:</span>
+                      <span className="detail-value">{step.monitoringProcedure}</span>
+                    </div>
+                  )}
+                  {step.correctiveActions && (
+                    <div className="step-detail">
+                      <span className="detail-label">الإجراءات التصحيحية:</span>
+                      <span className="detail-value">{step.correctiveActions}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))
         )}
       </div>
     </div>

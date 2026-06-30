@@ -1,100 +1,231 @@
-/* src/app/export/export.css */
+/* =====================================================
+   صفحة تصدير البيانات - Export
+   متطابق تماماً مع نظام HACCP Dashboard
+   أبيض وأسود مع كحلي غامق
+   ===================================================== */
+
+/* -----------------------------------------------------
+   الحاوية الرئيسية
+   ----------------------------------------------------- */
 .export-container {
-  padding: 20px;
-  direction: rtl;
-  max-width: 1200px;
-  margin: 0 auto;
-  background-color: #f8f9fa;
+  width: 100%;
   min-height: 100vh;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background var(--transition-normal), color var(--transition-normal);
+  padding: 24px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  direction: rtl;
+  max-width: 1600px;
+  margin: 0 auto;
 }
 
+/* -----------------------------------------------------
+   رأس الصفحة - متطابق مع Dashboard Header
+   ----------------------------------------------------- */
 .export-header {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+  gap: 24px;
+  flex-wrap: wrap;
+  background: var(--bg-secondary);
   padding: 24px;
-  margin-bottom: 24px;
-  text-align: center;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  width: 100%;
 }
 
 .export-header h1 {
-  color: #2c3e50;
-  margin: 0 0 12px 0;
-  font-size: 32px;
-  font-weight: 700;
+  font-size: 36px;
+  font-weight: 800;
+  margin: 0;
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 30px rgba(12, 74, 110, 0.3);
+}
+
+[data-theme="dark"] .export-header h1 {
+  text-shadow: 0 0 30px rgba(14, 165, 233, 0.3);
 }
 
 .export-header p {
-  color: #6c757d;
-  margin: 0;
-  font-size: 18px;
+  color: var(--text-secondary);
+  margin: 8px 0 0 0;
+  font-size: 15px;
+  font-weight: 500;
 }
 
+/* -----------------------------------------------------
+   رسائل الحالة - متطابقة مع Alert System
+   ----------------------------------------------------- */
+.success-message {
+  background: var(--success-light);
+  color: var(--success-color);
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--success-color);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  width: 100%;
+}
+
+.error-message {
+  background: var(--error-light);
+  color: var(--error-color);
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--error-color);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  width: 100%;
+}
+
+.success-icon,
+.error-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+/* -----------------------------------------------------
+   تخطيط المحتوى - شبكة حديثة
+   ----------------------------------------------------- */
 .export-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
+  width: 100%;
 }
 
+/* -----------------------------------------------------
+   بطاقة التصدير الرئيسية - Premium Card
+   ----------------------------------------------------- */
 .export-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
   padding: 32px;
-  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+}
+
+.export-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-color), var(--accent-hover));
+  opacity: 0.8;
+}
+
+.export-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border-color: var(--accent-color);
 }
 
 .export-icon {
-  font-size: 64px;
-  color: #3498db;
-  margin-bottom: 20px;
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  margin: 0 auto 24px;
+  font-size: 40px;
+  box-shadow: 0 10px 25px -5px rgba(14, 165, 233, 0.3);
 }
 
 .export-card h2 {
-  color: #2c3e50;
-  margin: 0 0 16px 0;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
   font-size: 24px;
-  font-weight: 600;
+  font-weight: 700;
+  text-align: center;
 }
 
 .export-card > p {
-  color: #6c757d;
-  margin-bottom: 24px;
+  color: var(--text-secondary);
+  margin: 0 0 24px 0;
   line-height: 1.6;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
 }
 
+/* -----------------------------------------------------
+   قائمة البيانات
+   ----------------------------------------------------- */
 .data-list {
   text-align: right;
   margin: 24px 0;
   padding: 0;
   list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .data-list li {
-  padding: 10px 16px;
-  margin-bottom: 8px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  border-right: 4px solid #3498db;
-  color: #495057;
-  transition: all 0.3s ease;
+  padding: 12px 16px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  border-right: 4px solid var(--accent-color);
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.data-list li::before {
+  content: '✓';
+  color: var(--accent-color);
+  font-weight: 700;
+  font-size: 16px;
 }
 
 .data-list li:hover {
-  background-color: #e9ecef;
+  background: var(--bg-tertiary);
   transform: translateX(-4px);
+  box-shadow: var(--shadow-sm);
 }
 
+/* -----------------------------------------------------
+   اختيار الصيغة
+   ----------------------------------------------------- */
 .format-selector {
   margin: 28px 0;
-  text-align: right;
+  text-align: center;
 }
 
 .format-selector label {
   display: block;
-  margin-bottom: 12px;
-  font-weight: 600;
-  color: #2c3e50;
+  margin-bottom: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
   font-size: 16px;
 }
 
@@ -102,6 +233,7 @@
   display: flex;
   gap: 16px;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .format-option {
@@ -109,91 +241,113 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 16px;
-  border: 2px solid #e9ecef;
-  border-radius: 12px;
-  background: white;
+  padding: 20px 24px;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background: var(--bg-primary);
+  color: var(--text-primary);
   cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 100px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 120px;
+  font-weight: 700;
+  font-size: 15px;
+  gap: 8px;
 }
 
 .format-option:hover {
-  border-color: #3498db;
-  transform: translateY(-2px);
+  border-color: var(--accent-color);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: var(--shadow-md);
 }
 
 .format-option.active {
-  border-color: #3498db;
-  background-color: #e3f2fd;
-  color: #0d47a1;
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+  border-color: var(--accent-color);
+  background: var(--accent-light);
+  color: var(--accent-color);
+  box-shadow: 0 4px 12px rgba(12, 74, 110, 0.2);
+}
+
+[data-theme="dark"] .format-option.active {
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
 }
 
 .format-option i {
-  font-size: 32px;
-  margin-bottom: 8px;
+  font-size: 36px;
 }
 
+/* -----------------------------------------------------
+   أزرار التصدير
+   ----------------------------------------------------- */
 .export-actions {
-  margin: 32px 0;
+  margin: 32px 0 0 0;
+  text-align: center;
 }
 
 .export-btn {
-  background: linear-gradient(135deg, #27ae60 0%, #219a52 100%);
+  background: var(--accent-color);
   color: white;
   border: none;
   padding: 16px 32px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   font-weight: 600;
   font-size: 18px;
-  transition: all 0.3s ease;
+  transition: all var(--transition-fast);
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  box-shadow: 0 4px 6px rgba(39, 174, 96, 0.2);
+  box-shadow: var(--shadow-sm);
 }
 
 .export-btn:hover:not(:disabled) {
+  background: var(--accent-hover);
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(39, 174, 96, 0.3);
-  background: linear-gradient(135deg, #219a52 0%, #1e8449 100%);
+  box-shadow: var(--shadow-md);
+}
+
+.export-btn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .export-btn:disabled {
-  background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
-.spinner {
+/* spinner داخل الزر */
+.export-btn .spinner {
   width: 20px;
   height: 20px;
-  border: 2px solid transparent;
-  border-top: 2px solid white;
+  border: 3px solid rgba(255,255,255,0.3);
+  border-left: 3px solid white;
   border-radius: 50%;
   animation: spin 1s linear infinite;
+  display: inline-block;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  to { transform: rotate(360deg); }
 }
 
+/* -----------------------------------------------------
+   ملاحظة التصدير
+   ----------------------------------------------------- */
 .export-note {
-  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
-  border: 1px solid #ffe0b2;
-  border-radius: 10px;
-  padding: 16px;
+  background: var(--warning-light);
+  border: 1px solid var(--warning-color);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
   display: flex;
   gap: 12px;
   align-items: flex-start;
+  margin-top: 24px;
 }
 
 .export-note i {
-  color: #f57c00;
+  color: var(--warning-color);
   font-size: 20px;
   flex-shrink: 0;
   margin-top: 2px;
@@ -201,23 +355,41 @@
 
 .export-note p {
   margin: 0;
-  color: #e65100;
+  color: var(--warning-color);
   font-size: 14px;
   line-height: 1.5;
+  font-weight: 500;
 }
 
+/* -----------------------------------------------------
+   معلومات إضافية - Premium Cards
+   ----------------------------------------------------- */
 .export-info {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
   padding: 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.export-info::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-color), var(--accent-hover));
+  opacity: 0.8;
 }
 
 .export-info h3 {
-  color: #2c3e50;
+  color: var(--text-primary);
   margin: 0 0 24px 0;
   font-size: 24px;
-  font-weight: 600;
+  font-weight: 700;
   text-align: center;
 }
 
@@ -228,92 +400,108 @@
 }
 
 .info-card {
-  background: #f8f9fa;
-  border-radius: 10px;
-  padding: 20px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
   text-align: center;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.info-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-color), var(--accent-hover));
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .info-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent-color);
+}
+
+.info-card:hover::before {
+  opacity: 0.8;
 }
 
 .info-icon {
-  font-size: 36px;
-  color: #3498db;
-  margin-bottom: 12px;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  margin: 0 auto 16px;
+  font-size: 24px;
+  box-shadow: 0 8px 20px -5px rgba(14, 165, 233, 0.3);
 }
 
 .info-card h4 {
-  color: #2c3e50;
-  margin: 0 0 12px 0;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .info-card p {
-  color: #6c757d;
+  color: var(--text-secondary);
   margin: 0;
   font-size: 14px;
   line-height: 1.5;
+  font-weight: 500;
 }
 
-/* حالات التحميل والخطأ */
+/* -----------------------------------------------------
+   التحميل
+   ----------------------------------------------------- */
 .loading {
-  text-align: center;
-  padding: 60px;
-  font-size: 18px;
-  color: #3498db;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  margin: 20px 0;
-}
-
-.success-message {
-  background: linear-gradient(135deg, #effff4 0%, #d5f5e3 100%);
-  color: #27ae60;
-  padding: 16px;
-  border-radius: 10px;
-  margin-bottom: 24px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  border: 1px solid #d5f5e3;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 16px;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  font-size: 16px;
   font-weight: 500;
 }
 
-.success-icon {
-  font-size: 20px;
+.loading::before {
+  content: '';
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--border-color);
+  border-left: 4px solid var(--accent-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-.error-message {
-  background: linear-gradient(135deg, #fee 0%, #fadbd8 100%);
-  color: #c0392b;
-  padding: 16px;
-  border-radius: 10px;
-  margin-bottom: 24px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border: 1px solid #fadbd8;
-  font-weight: 500;
-}
-
-.error-icon {
-  font-size: 20px;
-}
-
-/* التصميم المتجاوب */
-@media (max-width: 992px) {
+/* -----------------------------------------------------
+   التصميم المتجاوب
+   ----------------------------------------------------- */
+@media (max-width: 1024px) {
   .export-content {
     grid-template-columns: 1fr;
   }
-  
   .info-cards {
     grid-template-columns: 1fr 1fr;
+  }
+  .export-container {
+    padding: 20px;
   }
 }
 
@@ -321,34 +509,42 @@
   .export-container {
     padding: 16px;
   }
-  
+
   .export-header {
-    padding: 20px;
+    flex-direction: column;
+    text-align: center;
+    gap: 20px;
   }
-  
+
   .export-header h1 {
     font-size: 28px;
   }
-  
+
   .export-card,
   .export-info {
     padding: 24px;
   }
-  
+
   .format-options {
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
   }
-  
+
   .format-option {
     width: 100%;
     flex-direction: row;
     gap: 12px;
     justify-content: flex-start;
+    padding: 14px 20px;
   }
-  
+
   .info-cards {
     grid-template-columns: 1fr;
+  }
+
+  .export-btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 
@@ -356,58 +552,89 @@
   .export-container {
     padding: 12px;
   }
-  
+
   .export-header {
-    padding: 16px;
+    padding: 20px;
   }
-  
+
   .export-header h1 {
     font-size: 24px;
   }
-  
+
   .export-header p {
-    font-size: 16px;
+    font-size: 14px;
   }
-  
+
   .export-card,
   .export-info {
     padding: 20px;
   }
-  
-  .export-btn {
-    width: 100%;
-    justify-content: center;
-    padding: 14px;
+
+  .export-icon {
+    width: 64px;
+    height: 64px;
+    font-size: 32px;
   }
-  
+
+  .export-card h2 {
+    font-size: 20px;
+  }
+
   .data-list li {
-    font-size: 14px;
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+
+  .format-option {
+    padding: 12px 16px;
+  }
+
+  .format-option i {
+    font-size: 28px;
+  }
+
+  .export-btn {
+    padding: 14px;
+    font-size: 16px;
+  }
+
+  .info-card {
+    padding: 20px;
+  }
+
+  .info-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
   }
 }
 
-/* تأثيرات للبطاقات */
-.export-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.export-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-}
-
-/* تحسينات للوصول */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+/* -----------------------------------------------------
+   تحسينات للطباعة
+   ----------------------------------------------------- */
+@media print {
+  .export-header,
+  .export-note,
+  .export-actions,
+  .format-selector {
+    display: none !important;
   }
-  
-  .export-card:hover,
-  .info-card:hover,
-  .format-option:hover,
-  .export-btn:hover,
-  .data-list li:hover {
-    transform: none;
+
+  .export-container {
+    padding: 0;
+    background: white;
+    color: black;
+  }
+
+  .export-card,
+  .export-info {
+    box-shadow: none;
+    border: 1px solid #ddd;
+    page-break-inside: avoid;
+  }
+
+  .info-card {
+    box-shadow: none;
+    border: 1px solid #ddd;
   }
 }

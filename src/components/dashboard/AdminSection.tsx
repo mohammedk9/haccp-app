@@ -71,6 +71,7 @@ export default function AdminSection({ userStats, alerts }: AdminSectionProps) {
 
 function getRoleName(role: string): string {
   const roleNames: { [key: string]: string } = {
+    'SUPER_ADMIN' : 'المشرف العام',
     'ADMIN': 'مسؤول',
     'OPERATOR': 'مشغل',
     'QUALITY_MANAGER': 'مدير الجودة',

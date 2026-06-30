@@ -219,13 +219,6 @@ export default function UsersPage() {
 
   return (
     <div className="users-container">
-      <button 
-        className="theme-toggle"
-        onClick={toggleDarkMode}
-        title={isDarkMode ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع الداكن'}
-      >
-        {isDarkMode ? '☀️' : '🌙'}
-      </button>
 
       <div className="users-header">
         <div className="header-content">
