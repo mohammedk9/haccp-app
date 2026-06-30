@@ -1,34 +1,30 @@
+// src/app/page.tsx  ← هذا الملف الوحيد، احذف أي page.tsx ثاني
 'use client';
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-
+import LandingPage from '@/components/landing/LandingPage';
 
 export default function Home() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (status !== 'loading') {
-      if (session) {
-        router.replace('/dashboard'); // replace لتجنب push متكرر
-      } else {
-        router.replace('/auth/signin');
-      }
+    if (status === 'authenticated') {
+      router.replace('/dashboard');
     }
-  }, [session, status, router]);
+  }, [status, router]);
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">جاري التحقق من المصادقة...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0f172a] mx-auto"></div>
       </div>
     );
   }
 
-  return null; // لا تعرض محتوى لأن المستخدم سيتم توجيهه
+  if (status === 'authenticated') return null;
+
+  return <LandingPage />;
 }

@@ -93,3 +93,6 @@ body {
   direction: rtl;
   text-align: right;
 }
+.font-arabic {
+  font-family: var(--font-cairo), 'SF Arabic', Tahoma, sans-serif;
+}
